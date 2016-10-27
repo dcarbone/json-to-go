@@ -1,0 +1,26 @@
+{
+    "name": "dcarbone/json-to-go",
+    "type": "library",
+    "description": "PHP Implementation of mholt/json-to-go",
+    "license": "MIT",
+    "keywords": [
+        "json",
+        "golang",
+        "go",
+        "json to go"
+    ],
+    "authors": [
+        {
+            "name": "Matt Holt"
+        },
+        {
+            "name": "Daniel Carbone",
+            "email": "daniel.p.carbone@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "DCarbone\\": "src/"
+        }
+    }
+}
