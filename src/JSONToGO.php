@@ -90,15 +90,15 @@ class JSONToGO
         $this->forceOmitEmpty = (bool)$forceOmitEmpty;
     }
 
-    public function __invoke($input, $structName = '')
+    public function __invoke($input, $structName = '', $forceOmitEmpty = false)
     {
-        $new = new static($input, $structName);
+        $new = new static($input, $structName, $forceOmitEmpty);
         return $new->generate();
     }
 
-    public static function parse($input, $structName = '')
+    public static function parse($input, $structName = '', $forceOmitEmpty = false)
     {
-        $new = new static($input, $structName);
+        $new = new static($input, $structName, $forceOmitEmpty);
         return $new->generate();
     }
 
