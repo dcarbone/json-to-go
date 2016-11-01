@@ -14,6 +14,9 @@ class JSONToGO
     /** @var string */
     protected $structName = '';
 
+    /** @var bool */
+    protected $forceOmitEmpty = false;
+
     /** @var string */
     protected $go = '';
 
@@ -78,11 +81,13 @@ class JSONToGO
      *
      * @param string $input
      * @param string $typeName
+     * @param bool   $forceOmitEmpty
      */
-    public function __construct($input, $typeName = '')
+    public function __construct($input, $typeName = '', $forceOmitEmpty = false)
     {
         $this->input = (string)$input;
         $this->structName = (string)$typeName;
+        $this->forceOmitEmpty = (bool)$forceOmitEmpty;
     }
 
     public function __invoke($input, $structName = '')
@@ -234,7 +239,7 @@ class JSONToGO
             $this->append($this->format($key) . ' ');
             $this->parseScope($scope[$key]);
             $this->append(' `json:"' . $key);
-            if (in_array($key, $omitempty, true))
+            if ($this->forceOmitEmpty || in_array($key, $omitempty, true))
                 $this->append(',omitempty');
             $this->append("\"`\n");
         }
