@@ -17,6 +17,8 @@ class JSONToGO
     /** @var bool */
     protected $forceOmitEmpty = false;
 
+    protected $intToFloat = false;
+
     /** @var string */
     protected $go = '';
 
@@ -82,23 +84,25 @@ class JSONToGO
      * @param string $input
      * @param string $typeName
      * @param bool   $forceOmitEmpty
+     * @param bool   $intToFloat
      */
-    public function __construct($input, $typeName = '', $forceOmitEmpty = false)
+    public function __construct($input, $typeName = '', $forceOmitEmpty = false, $intToFloat = false)
     {
         $this->input = (string)$input;
         $this->structName = (string)$typeName;
         $this->forceOmitEmpty = (bool)$forceOmitEmpty;
+        $this->intToFloat = (bool)$intToFloat;
     }
 
-    public function __invoke($input, $structName = '', $forceOmitEmpty = false)
+    public function __invoke($input, $structName = '', $forceOmitEmpty = false, $intToFloat = false)
     {
-        $new = new static($input, $structName, $forceOmitEmpty);
+        $new = new static($input, $structName, $forceOmitEmpty, $intToFloat);
         return $new->generate();
     }
 
-    public static function parse($input, $structName = '', $forceOmitEmpty = false)
+    public static function parse($input, $structName = '', $forceOmitEmpty = false, $intToFloat = false)
     {
-        $new = new static($input, $structName, $forceOmitEmpty);
+        $new = new static($input, $structName, $forceOmitEmpty, $intToFloat);
         return $new->generate();
     }
 
@@ -243,7 +247,8 @@ class JSONToGO
                 $this->append(',omitempty');
             $this->append("\"`\n");
         }
-        $this->indent(--$this->tabs);
+        $this->tabs--;
+        $this->indent($this->tabs);
         $this->append('}');
     }
 
@@ -264,6 +269,9 @@ class JSONToGO
 
         if ('integer' === $type)
         {
+            if ($this->intToFloat)
+                return 'float64';
+
             if ($val > -2147483648 && $val < 2147483647)
                 return 'int';
 
