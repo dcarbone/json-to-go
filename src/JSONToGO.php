@@ -1,7 +1,7 @@
 <?php namespace DCarbone;
 
 /**
- * Logic for this class comes from https://github.com/mholt/json-to-go/blob/master/json-to-go.js
+ * Much of the logic for this class comes from https://github.com/mholt/json-to-go/blob/master/json-to-go.js
  */
 class JSONToGO
 {
@@ -17,13 +17,17 @@ class JSONToGO
     /** @var bool */
     protected $forceOmitEmpty = false;
 
-    protected $intToFloat = false;
+    /** @var bool */
+    protected $forceIntToFloat = false;
 
     /** @var string */
     protected $go = '';
 
     /** @var int */
     protected $tabs = 0;
+
+    /** @var bool */
+    protected $generated = false;
 
     /** @var string[] */
     protected static $commonInitialisms = [
@@ -84,25 +88,39 @@ class JSONToGO
      * @param string $input
      * @param string $typeName
      * @param bool   $forceOmitEmpty
-     * @param bool   $intToFloat
+     * @param bool   $forceIntToFloat
      */
-    public function __construct($input, $typeName = '', $forceOmitEmpty = false, $intToFloat = false)
+    public function __construct($input, $typeName = '', $forceOmitEmpty = false, $forceIntToFloat = false)
     {
-        $this->input = (string)$input;
-        $this->structName = (string)$typeName;
+        $this->input = trim((string)$input);
+        $this->structName = trim((string)$typeName);
         $this->forceOmitEmpty = (bool)$forceOmitEmpty;
-        $this->intToFloat = (bool)$intToFloat;
+        $this->intToFloat = (bool)$forceIntToFloat;
     }
 
-    public function __invoke($input, $structName = '', $forceOmitEmpty = false, $intToFloat = false)
+    /**
+     * @param string $input
+     * @param string $structName
+     * @param bool $forceOmitEmpty
+     * @param bool $forceIntToFloat
+     * @return JSONToGO
+     */
+    public function __invoke($input, $structName = '', $forceOmitEmpty = false, $forceIntToFloat = false)
     {
-        $new = new static($input, $structName, $forceOmitEmpty, $intToFloat);
+        $new = new static($input, $structName, $forceOmitEmpty, $forceIntToFloat);
         return $new->generate();
     }
 
-    public static function parse($input, $structName = '', $forceOmitEmpty = false, $intToFloat = false)
+    /**
+     * @param string $input
+     * @param string $structName
+     * @param bool $forceOmitEmpty
+     * @param bool $forceIntToFloat
+     * @return JSONToGO
+     */
+    public static function parse($input, $structName = '', $forceOmitEmpty = false, $forceIntToFloat = false)
     {
-        $new = new static($input, $structName, $forceOmitEmpty, $intToFloat);
+        $new = new static($input, $structName, $forceOmitEmpty, $forceIntToFloat);
         return $new->generate();
     }
 
@@ -147,37 +165,57 @@ class JSONToGO
     }
 
     /**
-     * @return string
+     * @return JSONToGO
      */
     public function generate()
     {
-        if ('' === $this->input)
-            throw new \RuntimeException('Input is empty, please re-construct with valid input');
+        if (!$this->generated)
+        {
+            if ('' === $this->input)
+                throw new \RuntimeException(get_class($this).'::generate - Input is empty, please re-construct with valid input');
 
-        $this->decoded = json_decode($this->input, true);
-        if (JSON_ERROR_NONE !== json_last_error())
-            throw new \RuntimeException(json_last_error_msg());
+            $this->decoded = json_decode($this->input, true);
+            if (JSON_ERROR_NONE !== json_last_error())
+                throw new \RuntimeException(json_last_error_msg());
 
-        if ('' !== $this->structName)
-            $this->append(sprintf('type %s ', $this->structName));
+            if ('' !== $this->structName)
+                $this->append(sprintf('type %s ', $this->structName));
 
-        $this->parseScope($this->decoded);
+            $this->parseScope($this->decoded);
+            $this->generated = true;
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
         return $this->go;
     }
 
+    /**
+     * @param string $string
+     */
     protected function append($string)
     {
         $this->go = sprintf('%s%s', $this->go, $string);
     }
 
+    /**
+     * @param int $tabs
+     */
     protected function indent($tabs)
     {
-        for ($i = 0; $i < $tabs; $i++)
-        {
-            $this->append("\t");
-        }
+        $this->append(str_repeat("\t", (int)$tabs));
     }
 
+    /**
+     * @param string $string
+     * @return string
+     */
     protected function format($string)
     {
         if (!$string)
@@ -199,6 +237,9 @@ class JSONToGO
         return preg_replace('/[^a-zA-Z0-9]/S', '', $string);
     }
 
+    /**
+     * @param mixed $scope
+     */
     protected function parseScope($scope)
     {
         if (is_array($scope))
@@ -276,6 +317,10 @@ class JSONToGO
         }
     }
 
+    /**
+     * @param array $scope
+     * @param array $omitempty
+     */
     protected function parseStruct(array $scope, array $omitempty = array())
     {
         $this->append("struct {\n");
@@ -295,6 +340,10 @@ class JSONToGO
         $this->append('}');
     }
 
+    /**
+     * @param mixed $val
+     * @return string
+     */
     protected function goType($val)
     {
         if (null === $val)
@@ -336,6 +385,11 @@ class JSONToGO
         return 'interface{}';
     }
 
+    /**
+     * @param string $type1
+     * @param string $type2
+     * @return string
+     */
     protected function mostSpecificPossibleGoType($type1, $type2)
     {
         if ('float' === substr($type1, 0, 5) && 'int' === substr($type2, 0, 3))
@@ -347,19 +401,23 @@ class JSONToGO
         return 'interface{}';
     }
 
+    /**
+     * @param string $string
+     * @return string
+     */
     protected function toProperCase($string)
     {
         $commonInitialisms = static::$commonInitialisms;
 
         return preg_replace_callback('/([A-Z])([a-z]+)/S', function($item) use ($commonInitialisms) {
             $item = reset($item);
-            $upper = mb_strtoupper($item);
+            $upper = strtoupper($item);
             if (in_array($upper, $commonInitialisms, true))
                 return $upper;
             return $item;
         }, preg_replace_callback('/(^|[^a-zA-Z])([a-z]+)/S', function($item) use ($commonInitialisms) {
             $item = reset($item);
-            $upper = mb_strtoupper($item);
+            $upper = strtoupper($item);
             if (in_array($upper, $commonInitialisms, true))
                 return $upper;
             return ucfirst(strtolower($item));

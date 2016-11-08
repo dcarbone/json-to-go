@@ -6,7 +6,7 @@ PHP Implementation of mholt/json-to-go
 ```json
 {
     "require": {
-        "dcarbone/json-to-go": "0.1.*"
+        "dcarbone/json-to-go": "0.2.*"
     }
 }
 ```
@@ -17,4 +17,15 @@ Because it fits better into my personal workflow.
 
 Also because why not.
 
-More documentation forthcoming, this was made quickly...
+## Basic Usage
+
+Once included in your project, the easiest way to use it is probably using the static initializers:
+
+```php
+$jsonToGO = \DCarbone\JSONToGO::parse($myjson);
+```
+
+This will return to you an instance of [JSONToGO](./src/JSONtoGO.php) with your input parsed.  If there was an issue
+during parsing, an exception will be thrown.
+
+This class implements `__toString()`, and the return value is the parsed GO object.
