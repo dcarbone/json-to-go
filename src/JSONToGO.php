@@ -174,7 +174,7 @@ class JSONToGO
             if ('' === $this->input)
                 throw new \RuntimeException(get_class($this).'::generate - Input is empty, please re-construct with valid input');
 
-            $this->decoded = json_decode($this->input, true);
+            $this->decoded = json_decode($this->input);
             if (JSON_ERROR_NONE !== json_last_error())
                 throw new \RuntimeException(json_last_error_msg());
 
@@ -242,73 +242,69 @@ class JSONToGO
      */
     protected function parseScope($scope)
     {
-        if (is_array($scope))
+        if (is_object($scope))
         {
-            $key = key($scope);
-            if (is_int($key))
-            {
-                $sliceType = null;
-                $scopeLength = count($scope);
+            $this->parseStruct($scope);
+        }
+        else if (is_array($scope))
+        {
+            $sliceType = null;
+            $scopeLength = count($scope);
 
+            foreach($scope as $item)
+            {
+                $thisType = $this->goType($item);
+
+                if (null === $sliceType)
+                {
+                    $sliceType = $thisType;
+                }
+                else if ($sliceType !== $thisType)
+                {
+                    $sliceType = $this->mostSpecificPossibleGoType($thisType, $sliceType);
+                    if ('interface{}' === $sliceType)
+                        break;
+                }
+            }
+
+            $this->append('[]');
+
+            if ('struct' === $sliceType)
+            {
+                $allFields = [];
                 foreach($scope as $item)
                 {
-                    $thisType = $this->goType($item);
-
-                    if (null === $sliceType)
+                    foreach(get_object_vars($item) as $key => $value)
                     {
-                        $sliceType = $thisType;
-                    }
-                    else if ($sliceType !== $thisType)
-                    {
-                        $sliceType = $this->mostSpecificPossibleGoType($thisType, $sliceType);
-                        if ('interface{}' === $sliceType)
-                            break;
-                    }
-                }
-
-                $this->append('[]');
-
-                if ('struct' === $sliceType)
-                {
-                    $allFields = [];
-                    foreach($scope as $item)
-                    {
-                        foreach(array_keys($scope) as $key)
+                        if (!isset($allFields[$key]))
                         {
-                            if (!isset($allFields[$key]))
-                            {
-                                $allFields[$key] = [
-                                    'value' => $item[$key],
-                                    'count' => 0,
-                                ];
-                            }
-
-                            $allFields[$key]['count']++;
+                            $allFields[$key] = [
+                                'value' => $value,
+                                'count' => 0,
+                            ];
                         }
-                    }
 
-                    $struct = [];
-                    $omitempty = [];
-                    foreach(array_keys($allFields) as $key)
-                    {
-                        $struct[$key] = $allFields[$key]['value'];
-                        $omitempty[$key] = $allFields[$key]['count'] !== $scopeLength;
+                        $allFields[$key]['count']++;
                     }
+                }
 
-                    $this->parseStruct($struct, $omitempty);
-                }
-                else if ('slice' === $sliceType)
+                $struct = new \stdClass();
+                $omitempty = [];
+                foreach(array_keys($allFields) as $key)
                 {
-                    $this->parseScope(reset($scope));
+                    $struct->$key = $allFields[$key]['value'];
+                    $omitempty[$key] = $allFields[$key]['count'] !== $scopeLength;
                 }
-                else
-                {
-                    $this->append($sliceType ? $sliceType : 'interface{}');
-                }
+
+                $this->parseStruct($struct, $omitempty);
+            }
+            else if ('slice' === $sliceType)
+            {
+                $this->parseScope(reset($scope));
             }
             else
             {
-                $this->parseStruct($scope);
+                $this->append($sliceType ? $sliceType : 'interface{}');
             }
         }
         else
@@ -321,15 +317,15 @@ class JSONToGO
      * @param array $scope
      * @param array $omitempty
      */
-    protected function parseStruct(array $scope, array $omitempty = array())
+    protected function parseStruct(\stdClass $scope, array $omitempty = array())
     {
         $this->append("struct {\n");
         $this->tabs++;
-        foreach(array_keys($scope) as $key)
+        foreach(get_object_vars($scope) as $key => $value)
         {
             $this->indent($this->tabs);
             $this->append($this->format($key) . ' ');
-            $this->parseScope($scope[$key]);
+            $this->parseScope($value);
             $this->append(' `json:"' . $key);
             if ($this->forceOmitEmpty || in_array($key, $omitempty, true))
                 $this->append(',omitempty');
