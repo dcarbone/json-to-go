@@ -106,6 +106,49 @@ class JSONToGO
         return $new->generate();
     }
 
+    /**
+     * @return string
+     */
+    public function getInput()
+    {
+        return $this->input;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDecoded()
+    {
+        return $this->decoded;
+    }
+
+    /**
+     * @return string
+     */
+    public function getStructName()
+    {
+        return $this->structName;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isForceOmitEmpty()
+    {
+        return $this->forceOmitEmpty;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isIntToFloat()
+    {
+        return $this->intToFloat;
+    }
+
+    /**
+     * @return string
+     */
     public function generate()
     {
         if ('' === $this->input)
