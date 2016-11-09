@@ -12,7 +12,7 @@ class JSONToGO
     protected $decoded = null;
 
     /** @var string */
-    protected $structName = '';
+    protected $typeName = '';
 
     /** @var bool */
     protected $forceOmitEmpty = false;
@@ -93,35 +93,54 @@ class JSONToGO
     public function __construct($input, $typeName = '', $forceOmitEmpty = false, $forceIntToFloat = false)
     {
         $this->input = trim((string)$input);
-        $this->structName = trim((string)$typeName);
+        $this->typeName = trim((string)$typeName);
         $this->forceOmitEmpty = (bool)$forceOmitEmpty;
         $this->intToFloat = (bool)$forceIntToFloat;
     }
 
     /**
      * @param string $input
-     * @param string $structName
+     * @param string $typeName
      * @param bool $forceOmitEmpty
      * @param bool $forceIntToFloat
      * @return JSONToGO
      */
-    public function __invoke($input, $structName = '', $forceOmitEmpty = false, $forceIntToFloat = false)
+    public function __invoke($input, $typeName = '', $forceOmitEmpty = false, $forceIntToFloat = false)
     {
-        $new = new static($input, $structName, $forceOmitEmpty, $forceIntToFloat);
+        $new = new static($input, $typeName, $forceOmitEmpty, $forceIntToFloat);
         return $new->generate();
     }
 
     /**
      * @param string $input
-     * @param string $structName
+     * @param string $typeName
      * @param bool $forceOmitEmpty
      * @param bool $forceIntToFloat
      * @return JSONToGO
      */
-    public static function parse($input, $structName = '', $forceOmitEmpty = false, $forceIntToFloat = false)
+    public static function parse($input, $typeName = '', $forceOmitEmpty = false, $forceIntToFloat = false)
     {
-        $new = new static($input, $structName, $forceOmitEmpty, $forceIntToFloat);
+        $new = new static($input, $typeName, $forceOmitEmpty, $forceIntToFloat);
         return $new->generate();
+    }
+
+    /**
+     * @param mixed $decodedInput
+     * @param string $typeName
+     * @param bool $forceOmitEmpty
+     * @param bool $forceIntToFloat
+     * @return JSONToGO
+     */
+    public static function parseDecoded($decodedInput, $typeName = '', $forceOmitEmpty = false, $forceIntToFloat = false)
+    {
+        $encoded = json_encode($decodedInput);
+        if (JSON_ERROR_NONE === json_last_error())
+        {
+            $new = new static($encoded, $typeName, $forceOmitEmpty, $forceIntToFloat);
+            return $new->generate();
+        }
+
+        throw new \InvalidArgumentException('Unable to encode input: ' . json_last_error_msg());
     }
 
     /**
@@ -143,9 +162,9 @@ class JSONToGO
     /**
      * @return string
      */
-    public function getStructName()
+    public function getTypeName()
     {
-        return $this->structName;
+        return $this->typeName;
     }
 
     /**
@@ -178,8 +197,8 @@ class JSONToGO
             if (JSON_ERROR_NONE !== json_last_error())
                 throw new \RuntimeException(json_last_error_msg());
 
-            if ('' !== $this->structName)
-                $this->append(sprintf('type %s ', $this->structName));
+            if ('' !== $this->typeName)
+                $this->append(sprintf('type %s ', $this->typeName));
 
             $this->parseScope($this->decoded);
             $this->generated = true;
