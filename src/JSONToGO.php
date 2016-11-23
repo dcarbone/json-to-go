@@ -20,6 +20,9 @@ class JSONToGO
     /** @var bool */
     protected $forceIntToFloat = false;
 
+    /** @var bool */
+    protected $forceScalarToPointer = false;
+
     /** @var string */
     protected $go = '';
 
@@ -87,15 +90,17 @@ class JSONToGO
      *
      * @param string $input
      * @param string $typeName
-     * @param bool   $forceOmitEmpty
-     * @param bool   $forceIntToFloat
+     * @param bool $forceOmitEmpty
+     * @param bool $forceIntToFloat
+     * @param bool $forceScalarToPointer
      */
-    public function __construct($input, $typeName = '', $forceOmitEmpty = false, $forceIntToFloat = false)
+    public function __construct($input, $typeName = '', $forceOmitEmpty = false, $forceIntToFloat = false, $forceScalarToPointer = false)
     {
         $this->input = trim((string)$input);
         $this->typeName = trim((string)$typeName);
         $this->forceOmitEmpty = (bool)$forceOmitEmpty;
         $this->intToFloat = (bool)$forceIntToFloat;
+        $this->forceScalarToPointer = (bool)$forceScalarToPointer;
     }
 
     /**
@@ -103,11 +108,12 @@ class JSONToGO
      * @param string $typeName
      * @param bool $forceOmitEmpty
      * @param bool $forceIntToFloat
-     * @return JSONToGO
+     * @param bool $forceScalarToPointer
+     * @return \DCarbone\JSONToGO
      */
-    public function __invoke($input, $typeName = '', $forceOmitEmpty = false, $forceIntToFloat = false)
+    public function __invoke($input, $typeName = '', $forceOmitEmpty = false, $forceIntToFloat = false, $forceScalarToPointer = false)
     {
-        $new = new static($input, $typeName, $forceOmitEmpty, $forceIntToFloat);
+        $new = new static($input, $typeName, $forceOmitEmpty, $forceIntToFloat, $forceScalarToPointer);
         return $new->generate();
     }
 
@@ -116,11 +122,12 @@ class JSONToGO
      * @param string $typeName
      * @param bool $forceOmitEmpty
      * @param bool $forceIntToFloat
-     * @return JSONToGO
+     * @param bool $forceScalarToPointer
+     * @return \DCarbone\JSONToGO
      */
-    public static function parse($input, $typeName = '', $forceOmitEmpty = false, $forceIntToFloat = false)
+    public static function parse($input, $typeName = '', $forceOmitEmpty = false, $forceIntToFloat = false, $forceScalarToPointer = false)
     {
-        $new = new static($input, $typeName, $forceOmitEmpty, $forceIntToFloat);
+        $new = new static($input, $typeName, $forceOmitEmpty, $forceIntToFloat, $forceScalarToPointer);
         return $new->generate();
     }
 
@@ -129,14 +136,15 @@ class JSONToGO
      * @param string $typeName
      * @param bool $forceOmitEmpty
      * @param bool $forceIntToFloat
-     * @return JSONToGO
+     * @param bool $forceScalarToPointer
+     * @return \DCarbone\JSONToGO
      */
-    public static function parseDecoded($decodedInput, $typeName = '', $forceOmitEmpty = false, $forceIntToFloat = false)
+    public static function parseDecoded($decodedInput, $typeName = '', $forceOmitEmpty = false, $forceIntToFloat = false, $forceScalarToPointer = false)
     {
         $encoded = json_encode($decodedInput);
         if (JSON_ERROR_NONE === json_last_error())
         {
-            $new = new static($encoded, $typeName, $forceOmitEmpty, $forceIntToFloat);
+            $new = new static($encoded, $typeName, $forceOmitEmpty, $forceIntToFloat, $forceScalarToPointer);
             return $new->generate();
         }
 
@@ -371,25 +379,25 @@ class JSONToGO
             if (preg_match('/\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(\.\d+)?(\+\d\d:\d\d|Z)/S', $val))
                 return 'time.Time';
 
-            return 'string';
+            return $this->forceScalarToPointer ? '*string' : 'string';
         }
 
         if ('integer' === $type)
         {
             if ($this->intToFloat)
-                return 'float64';
+                return $this->forceScalarToPointer ? '*float64': 'float64';
 
             if ($val > -2147483648 && $val < 2147483647)
-                return 'int';
+                return $this->forceScalarToPointer ? '*int' : 'int';
 
-            return 'int64';
+            return $this->forceScalarToPointer ? '*int64' : 'int64';
         }
 
         if ('boolean' === $type)
-            return 'bool';
+            return $this->forceScalarToPointer ? '*bool' : 'bool';
 
         if ('double' === $type)
-            return 'float64';
+            return $this->forceScalarToPointer ? '*float64' : 'float64';
 
         if ('array' === $type)
             return 'slice';
