@@ -192,6 +192,14 @@ class JSONToGO
     }
 
     /**
+     * @return boolean
+     */
+    public function isForceScalarToPointer()
+    {
+        return $this->forceScalarToPointer;
+    }
+
+    /**
      * @return JSONToGO
      */
     public function generate()
@@ -341,7 +349,7 @@ class JSONToGO
     }
 
     /**
-     * @param array $scope
+     * @param \stdClass $scope
      * @param array $omitempty
      */
     protected function parseStruct(\stdClass $scope, array $omitempty = array())
@@ -415,10 +423,13 @@ class JSONToGO
      */
     protected function mostSpecificPossibleGoType($type1, $type2)
     {
-        if ('float' === substr($type1, 0, 5) && 'int' === substr($type2, 0, 3))
+        $t1 = ltrim($type1, "*");
+        $t2 = ltrim($type2, "*");
+
+        if ('float' === substr($t1, 0, 5) && 'int' === substr($t2, 0, 3))
             return $type1;
 
-        if ('int' === substr($type1, 0, 3) && 'float' === substr($type2, 0, 5))
+        if ('int' === substr($t1, 0, 3) && 'float' === substr($t2, 0, 5))
             return $type1;
 
         return 'interface{}';
