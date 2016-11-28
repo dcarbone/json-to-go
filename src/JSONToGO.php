@@ -288,7 +288,7 @@ class JSONToGO
 
             foreach($scope as $item)
             {
-                $thisType = $this->goType($item);
+                $thisType = $this->goType($item, false);
 
                 if (null === $sliceType)
                 {
@@ -344,7 +344,7 @@ class JSONToGO
         }
         else
         {
-            $this->append($this->goType($scope));
+            $this->append($this->goType($scope, $this->forceScalarToPointer));
         }
     }
 
@@ -373,9 +373,10 @@ class JSONToGO
 
     /**
      * @param mixed $val
+     * @param bool $forcePointer
      * @return string
      */
-    protected function goType($val)
+    protected function goType($val, $forcePointer = false)
     {
         if (null === $val)
             return 'interface{}';
@@ -387,25 +388,25 @@ class JSONToGO
             if (preg_match('/\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(\.\d+)?(\+\d\d:\d\d|Z)/S', $val))
                 return 'time.Time';
 
-            return $this->forceScalarToPointer ? '*string' : 'string';
+            return $forcePointer ? '*string' : 'string';
         }
 
         if ('integer' === $type)
         {
             if ($this->intToFloat)
-                return $this->forceScalarToPointer ? '*float64': 'float64';
+                return $forcePointer ? '*float64': 'float64';
 
             if ($val > -2147483648 && $val < 2147483647)
-                return $this->forceScalarToPointer ? '*int' : 'int';
+                return $forcePointer ? '*int' : 'int';
 
-            return $this->forceScalarToPointer ? '*int64' : 'int64';
+            return $forcePointer ? '*int64' : 'int64';
         }
 
         if ('boolean' === $type)
-            return $this->forceScalarToPointer ? '*bool' : 'bool';
+            return $forcePointer ? '*bool' : 'bool';
 
         if ('double' === $type)
-            return $this->forceScalarToPointer ? '*float64' : 'float64';
+            return $forcePointer ? '*float64' : 'float64';
 
         if ('array' === $type)
             return 'slice';
