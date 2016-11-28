@@ -25,7 +25,7 @@ Once included in your project, the easiest way to use it is probably using the s
 $jsonToGO = \DCarbone\JSONToGO::parse($myjson);
 ```
 
-This will return to you an instance of [JSONToGO](./src/JSONtoGO.php) with your input parsed.  If there was an issue
+This will return to you an instance of [JSONToGO](./src/JSONToGO.php) with your input parsed.  If there was an issue
 during parsing, an exception will be thrown.
 
 This class implements `__toString()`, and the return value is the parsed GO object.
