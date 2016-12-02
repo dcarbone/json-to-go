@@ -101,7 +101,11 @@ class JSONToGO
      * @param bool $forceIntToFloat
      * @param bool $forceScalarToPointer
      */
-    public function __construct($input, $typeName = '', $forceOmitEmpty = false, $forceIntToFloat = false, $forceScalarToPointer = false)
+    public function __construct($input,
+                                $typeName = '',
+                                $forceOmitEmpty = false,
+                                $forceIntToFloat = false,
+                                $forceScalarToPointer = false)
     {
         $this->input = trim((string)$input);
         $this->typeName = trim((string)$typeName);
@@ -118,7 +122,11 @@ class JSONToGO
      * @param bool $forceScalarToPointer
      * @return \DCarbone\JSONToGO
      */
-    public function __invoke($input, $typeName = '', $forceOmitEmpty = false, $forceIntToFloat = false, $forceScalarToPointer = false)
+    public function __invoke($input,
+                             $typeName = '',
+                             $forceOmitEmpty = false,
+                             $forceIntToFloat = false,
+                             $forceScalarToPointer = false)
     {
         $new = new static($input, $typeName, $forceOmitEmpty, $forceIntToFloat, $forceScalarToPointer);
         return $new->generate();
@@ -132,7 +140,11 @@ class JSONToGO
      * @param bool $forceScalarToPointer
      * @return \DCarbone\JSONToGO
      */
-    public static function parse($input, $typeName = '', $forceOmitEmpty = false, $forceIntToFloat = false, $forceScalarToPointer = false)
+    public static function parse($input,
+                                 $typeName = '',
+                                 $forceOmitEmpty = false,
+                                 $forceIntToFloat = false,
+                                 $forceScalarToPointer = false)
     {
         $new = new static($input, $typeName, $forceOmitEmpty, $forceIntToFloat, $forceScalarToPointer);
         return $new->generate();
@@ -146,7 +158,11 @@ class JSONToGO
      * @param bool $forceScalarToPointer
      * @return \DCarbone\JSONToGO
      */
-    public static function parseDecoded($decodedInput, $typeName = '', $forceOmitEmpty = false, $forceIntToFloat = false, $forceScalarToPointer = false)
+    public static function parseDecoded($decodedInput,
+                                        $typeName = '',
+                                        $forceOmitEmpty = false,
+                                        $forceIntToFloat = false,
+                                        $forceScalarToPointer = false)
     {
         $encoded = json_encode($decodedInput);
         if (JSON_ERROR_NONE === json_last_error())
