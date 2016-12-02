@@ -5,6 +5,13 @@
  */
 class JSONToGO
 {
+    /** @var array */
+    public static $specialCharacterRewriteMap = [
+        '.' => 'DOT',
+        '_', 'UNDERSCORE',
+        '-', 'HYPHEN',
+    ];
+
     /** @var string */
     protected $input = '';
 
@@ -248,28 +255,44 @@ class JSONToGO
     }
 
     /**
-     * @param string $string
+     * @param string $propertyName
      * @return string
      */
-    protected function format($string)
+    protected function formatPropertyName($propertyName)
     {
-        if (!$string)
+        if (!$propertyName)
             return '';
 
-        if (preg_match('/^\d+$/S', $string))
+        // If entire name is a number...
+        if (preg_match('/^\d+$/S', $propertyName))
         {
-            $string = sprintf('Num%s', $string);
+            $propertyName = sprintf('Num%s', $propertyName);
         }
-        else if (preg_match('/^\d/S', $string))
+        // If first character of name is a number...
+        else if (preg_match('/^\d/S', $propertyName))
         {
-            $string = static::$numbers[(int)substr($string, 0, 1)] . substr($string, 1);
+            $propertyName = static::$numbers[(int)substr($propertyName, 0, 1)] . substr($propertyName, 1);
         }
 
-        $string = $this->toProperCase($string);
-        if (preg_match('/^[^a-zA-Z]/S', $string))
-            $string = sprintf('X%s', $string);
+        // Case it
+        $propertyName = $this->toProperCase($propertyName);
 
-        return preg_replace('/[^a-zA-Z0-9]/S', '', $string);
+        // Replace special characters, if map is not empty...
+        if (0 < count(static::$specialCharacterRewriteMap))
+        {
+            $propertyName = str_replace(
+                array_keys(static::$specialCharacterRewriteMap),
+                array_values(static::$specialCharacterRewriteMap),
+                $propertyName
+            );
+        }
+
+        // Then, if this starts with anything other than an alpha character prefix with X
+        if (preg_match('/^[^a-zA-Z]/S', $propertyName))
+            $propertyName = sprintf('X%s', $propertyName);
+
+        // Finally, strip out everything that was not caught above and is not an alphanumeric character.
+        return preg_replace('/[^a-zA-Z0-9]/S', '', $propertyName);
     }
 
     /**
@@ -359,7 +382,7 @@ class JSONToGO
         foreach(get_object_vars($scope) as $key => $value)
         {
             $this->indent($this->tabs);
-            $this->append($this->format($key) . ' ');
+            $this->append($this->formatPropertyName($key) . ' ');
             $this->parseScope($value);
             $this->append(' `json:"' . $key);
             if ($this->forceOmitEmpty || in_array($key, $omitempty, true))
