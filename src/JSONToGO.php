@@ -8,8 +8,8 @@ class JSONToGO
     /** @var array */
     public static $specialCharacterRewriteMap = [
         '.' => 'DOT',
-        '_', 'UNDERSCORE',
-        '-', 'HYPHEN',
+        '_' => 'UNDERSCORE',
+        '-' => 'HYPHEN',
     ];
 
     /** @var string */
