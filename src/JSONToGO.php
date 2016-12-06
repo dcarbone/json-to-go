@@ -1,5 +1,9 @@
 <?php namespace DCarbone;
 
+use DCarbone\JSONToGO\Types\InterfaceType;
+use DCarbone\JSONToGO\Types\SimpleType;
+use DCarbone\JSONToGO\Types\StructType;
+
 /**
  * Much of the logic for this class comes from https://github.com/mholt/json-to-go/blob/master/json-to-go.js
  */
@@ -19,7 +23,7 @@ class JSONToGO
     protected $decoded = null;
 
     /** @var string */
-    protected $typeName = '';
+    protected $typeName;
 
     /** @var bool */
     protected $forceOmitEmpty = false;
@@ -102,7 +106,7 @@ class JSONToGO
      * @param bool $forceScalarToPointer
      */
     public function __construct($input,
-                                $typeName = '',
+                                $typeName,
                                 $forceOmitEmpty = false,
                                 $forceIntToFloat = false,
                                 $forceScalarToPointer = false)
@@ -123,7 +127,7 @@ class JSONToGO
      * @return \DCarbone\JSONToGO
      */
     public function __invoke($input,
-                             $typeName = '',
+                             $typeName,
                              $forceOmitEmpty = false,
                              $forceIntToFloat = false,
                              $forceScalarToPointer = false)
@@ -141,7 +145,7 @@ class JSONToGO
      * @return \DCarbone\JSONToGO
      */
     public static function parse($input,
-                                 $typeName = '',
+                                 $typeName,
                                  $forceOmitEmpty = false,
                                  $forceIntToFloat = false,
                                  $forceScalarToPointer = false)
@@ -159,7 +163,7 @@ class JSONToGO
      * @return \DCarbone\JSONToGO
      */
     public static function parseDecoded($decodedInput,
-                                        $typeName = '',
+                                        $typeName,
                                         $forceOmitEmpty = false,
                                         $forceIntToFloat = false,
                                         $forceScalarToPointer = false)
@@ -236,10 +240,7 @@ class JSONToGO
             if (JSON_ERROR_NONE !== json_last_error())
                 throw new \RuntimeException(json_last_error_msg());
 
-            if ('' !== $this->typeName)
-                $this->append(sprintf('type %s ', $this->typeName));
-
-            $this->parseScope($this->decoded);
+            $this->parseScope($this->decoded, $this->typeName);
             $this->generated = true;
         }
 
@@ -254,21 +255,21 @@ class JSONToGO
         return $this->go;
     }
 
-    /**
-     * @param string $string
-     */
-    protected function append($string)
-    {
-        $this->go = sprintf('%s%s', $this->go, $string);
-    }
-
-    /**
-     * @param int $tabs
-     */
-    protected function indent($tabs)
-    {
-        $this->append(str_repeat("\t", (int)$tabs));
-    }
+//    /**
+//     * @param string $string
+//     */
+//    protected function append($string)
+//    {
+//        $this->go = sprintf('%s%s', $this->go, $string);
+//    }
+//
+//    /**
+//     * @param int $tabs
+//     */
+//    protected function indent($tabs)
+//    {
+//        $this->append(str_repeat("\t", (int)$tabs));
+//    }
 
     /**
      * @param string $propertyName
@@ -293,6 +294,10 @@ class JSONToGO
         // Case it
         $propertyName = $this->toProperCase($propertyName);
 
+        // Then, if this starts with anything other than an alpha character prefix with X
+        if (preg_match('/^[^a-zA-Z]/S', $propertyName))
+            $propertyName = sprintf('X%s', $propertyName);
+
         // Replace special characters, if map is not empty...
         if (0 < count(static::$specialCharacterRewriteMap))
         {
@@ -303,31 +308,31 @@ class JSONToGO
             );
         }
 
-        // Then, if this starts with anything other than an alpha character prefix with X
-        if (preg_match('/^[^a-zA-Z]/S', $propertyName))
-            $propertyName = sprintf('X%s', $propertyName);
-
         // Finally, strip out everything that was not caught above and is not an alphanumeric character.
         return preg_replace('/[^a-zA-Z0-9]/S', '', $propertyName);
     }
 
     /**
      * @param mixed $scope
+     * @param $name
+     * @return \DCarbone\JSONToGO\Types\AbstractType
      */
-    protected function parseScope($scope)
+    protected function parseScope($scope, $name)
     {
-        if (is_object($scope))
+        $scopeType = $this->goType($scope);
+
+        if ('struct' === $scopeType)
         {
-            $this->parseStruct($scope);
+            $type = new StructType($name, $scope);
         }
-        else if (is_array($scope))
+        else if ('slice' === $scopeType)
         {
             $sliceType = null;
             $scopeLength = count($scope);
 
             foreach($scope as $item)
             {
-                $thisType = $this->goType($item, false);
+                $thisType = $this->goType($item);
 
                 if (null === $sliceType)
                 {
@@ -340,8 +345,6 @@ class JSONToGO
                         break;
                 }
             }
-
-            $this->append('[]');
 
             if ('struct' === $sliceType)
             {
@@ -370,52 +373,40 @@ class JSONToGO
                     $omitempty[$key] = $allFields[$key]['count'] !== $scopeLength;
                 }
 
-                $this->parseStruct($struct, $omitempty);
+                $type = new StructType($name, $struct);
+                $type->collection();
             }
             else if ('slice' === $sliceType)
             {
-                $this->parseScope(reset($scope));
+                $type = $this->parseScope(reset($scope), $name);
+                $type->collection();
+            }
+            else if ('interface{}' === $sliceType)
+            {
+                $type = new InterfaceType($name);
             }
             else
             {
-                $this->append($sliceType ? $sliceType : 'interface{}');
+                $type = $sliceType ? new SimpleType($name, $sliceType) : new InterfaceType($name);
             }
+        }
+        else if ('interface{}' === $scopeType)
+        {
+            $type = new InterfaceType($name);
         }
         else
         {
-            $this->append($this->goType($scope, $this->forceScalarToPointer));
+            $type = new SimpleType($name, $scopeType);
         }
-    }
 
-    /**
-     * @param \stdClass $scope
-     * @param array $omitempty
-     */
-    protected function parseStruct(\stdClass $scope, array $omitempty = array())
-    {
-        $this->append("struct {\n");
-        $this->tabs++;
-        foreach(get_object_vars($scope) as $key => $value)
-        {
-            $this->indent($this->tabs);
-            $this->append($this->formatPropertyName($key) . ' ');
-            $this->parseScope($value);
-            $this->append(' `json:"' . $key);
-            if ($this->forceOmitEmpty || in_array($key, $omitempty, true))
-                $this->append(',omitempty');
-            $this->append("\"`\n");
-        }
-        $this->tabs--;
-        $this->indent($this->tabs);
-        $this->append('}');
+        return $type;
     }
 
     /**
      * @param mixed $val
-     * @param bool $forcePointer
      * @return string
      */
-    protected function goType($val, $forcePointer = false)
+    protected function goType($val)
     {
         if (null === $val)
             return 'interface{}';
@@ -427,25 +418,25 @@ class JSONToGO
             if (preg_match('/\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(\.\d+)?(\+\d\d:\d\d|Z)/S', $val))
                 return 'time.Time';
 
-            return $forcePointer ? '*string' : 'string';
+            return 'string';
         }
 
         if ('integer' === $type)
         {
             if ($this->intToFloat)
-                return $forcePointer ? '*float64': 'float64';
+                return 'float64';
 
             if ($val > -2147483648 && $val < 2147483647)
-                return $forcePointer ? '*int' : 'int';
+                return 'int';
 
-            return $forcePointer ? '*int64' : 'int64';
+            return 'int64';
         }
 
         if ('boolean' === $type)
-            return $forcePointer ? '*bool' : 'bool';
+            return 'bool';
 
         if ('double' === $type)
-            return $forcePointer ? '*float64' : 'float64';
+            return 'float64';
 
         if ('array' === $type)
             return 'slice';
@@ -463,13 +454,10 @@ class JSONToGO
      */
     protected function mostSpecificPossibleGoType($type1, $type2)
     {
-        $t1 = ltrim($type1, "*");
-        $t2 = ltrim($type2, "*");
-
-        if ('float' === substr($t1, 0, 5) && 'int' === substr($t2, 0, 3))
+        if ('float' === substr($type1, 0, 5) && 'int' === substr($type2, 0, 3))
             return $type1;
 
-        if ('int' === substr($t1, 0, 3) && 'float' === substr($t2, 0, 5))
+        if ('int' === substr($type1, 0, 3) && 'float' === substr($type2, 0, 5))
             return $type1;
 
         return 'interface{}';
