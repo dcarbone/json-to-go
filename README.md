@@ -213,7 +213,7 @@ type ServletInitparam struct {
 type WebappServlet struct {
 	Servletname string `json:"servlet-name"`
 	Servletclass string `json:"servlet-class"`
-	Initparam *ServletInitparam `json:"init-param",omitempty`
+	Initparam *ServletInitparam `json:"init-param,omitempty"`
 }
 
 type WebappServletmapping struct {
