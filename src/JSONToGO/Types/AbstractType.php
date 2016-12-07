@@ -22,6 +22,8 @@ abstract class AbstractType
 
     /** @var string */
     protected $name;
+    /** @var mixed */
+    protected $definition;
 
     /** @var bool */
     protected $collection = false;
@@ -33,12 +35,14 @@ abstract class AbstractType
      * AbstractType constructor.
      *
      * @param \DCarbone\JSONToGO\Configuration $configuration
-     * @param string $rawName
+     * @param string $name
+     * @param mixed $definition
      */
-    public function __construct(Configuration $configuration, $rawName)
+    public function __construct(Configuration $configuration, $name, $definition)
     {
         $this->configuration = $configuration;
-        $this->name = $rawName;
+        $this->name = $name;
+        $this->definition = $definition;
     }
 
     /**
@@ -103,6 +107,14 @@ abstract class AbstractType
             '"%s" is not a collection.',
             $this->goTypeName()
         ));
+    }
+
+    /**
+     * @return mixed
+     */
+    public function definition()
+    {
+        return $this->definition;
     }
 
     /**

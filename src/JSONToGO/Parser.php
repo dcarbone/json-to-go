@@ -37,11 +37,11 @@ abstract class Parser
                 break;
 
             case 'interface{}':
-                $type = new InterfaceType($configuration, $typeName);
+                $type = new InterfaceType($configuration, $typeName, $typeExample);
                 break;
 
             default:
-                $type = new SimpleType($configuration, $typeName, $goType);
+                $type = new SimpleType($configuration, $typeName, $typeExample, $goType);
         }
 
         return $type;
@@ -55,7 +55,7 @@ abstract class Parser
      */
     public static function parseStructType(Configuration $configuration, \stdClass $typeExample, $typeName)
     {
-        $structType = new StructType($configuration, $typeName);
+        $structType = new StructType($configuration, $typeName, $typeExample);
 
         foreach(get_object_vars($typeExample) as $key => $value)
         {
@@ -129,11 +129,14 @@ abstract class Parser
         }
         else if ('interface{}' === $sliceGoType)
         {
-            $type = new InterfaceType($configuration, $typeName);
+            $type = new InterfaceType($configuration, $typeName, $typeExample);
         }
         else
         {
-            $type = $sliceGoType ? new SimpleType($configuration, $typeName, $sliceGoType) : new InterfaceType($configuration, $typeName);
+            if ($sliceGoType)
+                $type = new SimpleType($configuration, $typeName, $typeExample, $sliceGoType);
+            else
+                $type = new InterfaceType($configuration, $typeName, $typeExample);
         }
 
         $type->collection();

@@ -7,8 +7,6 @@
  * of the MIT license.  See the LICENSE file for details.
  */
 
-use DCarbone\JSONToGO\Configuration;
-
 /**
  * Class StructType
  *
@@ -18,17 +16,6 @@ class StructType extends AbstractType
 {
     /** @var \DCarbone\JSONToGO\Types\StructType[] */
     protected $children = [];
-
-    /**
-     * StructType constructor.
-     *
-     * @param \DCarbone\JSONToGO\Configuration $configuration
-     * @param string $rawName
-     */
-    public function __construct(Configuration $configuration, $rawName)
-    {
-        parent::__construct($configuration, $rawName);
-    }
 
     /**
      * @return array
