@@ -113,7 +113,7 @@ class StructType extends AbstractType
                 $output[] = $child->toJson();
 
                 $go = sprintf(
-                    "%s %s%s `json:\"%s%s\"`",
+                    '%s %s%s `json:"%s%s"`',
                     $go,
                     $child->isCollection() ? '' : '*',
                     $child->isCollection() ? $child->goTypeSliceName() : $child->goTypeName(),
@@ -124,7 +124,7 @@ class StructType extends AbstractType
             else
             {
                 $go = sprintf(
-                    "%s %s `json:\"%s\"%s`",
+                    '%s %s `json:"%s%s"`',
                     $go,
                     $child->toJson($indentLevel + 2),
                     $child->name(),
