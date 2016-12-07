@@ -122,6 +122,11 @@ abstract class Parser
             }
 
             $type = static::parseStructType($configuration, $structExample, $typeName);
+            foreach($type->children() as $child)
+            {
+                if ($omitempty[$child->name()])
+                    $child->notAlwaysDefined();
+            }
         }
         else if ('slice' === $sliceGoType)
         {

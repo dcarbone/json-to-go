@@ -26,6 +26,9 @@ abstract class AbstractType
     protected $definition;
 
     /** @var bool */
+    protected $alwaysDefined = true;
+
+    /** @var bool */
     protected $collection = false;
 
     /** @var \DCarbone\JSONToGO\Types\StructType */
@@ -131,6 +134,23 @@ abstract class AbstractType
     public function collection()
     {
         $this->collection = true;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isAlwaysDefined()
+    {
+        return $this->alwaysDefined && false === $this->configuration->forceOmitEmpty();
+    }
+
+    /**
+     * @return AbstractType
+     */
+    public function notAlwaysDefined()
+    {
+        $this->alwaysDefined = false;
         return $this;
     }
 

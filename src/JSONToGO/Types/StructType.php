@@ -118,7 +118,7 @@ class StructType extends AbstractType
                     $child->isCollection() ? '' : '*',
                     $child->isCollection() ? $child->goTypeSliceName() : $child->goTypeName(),
                     $child->name(),
-                    $this->configuration->forceOmitEmpty() ? ',omitempty' : ''
+                    $child->isAlwaysDefined() ? '' : ',omitempty'
                 );
             }
             else
@@ -128,14 +128,14 @@ class StructType extends AbstractType
                     $go,
                     $child->toJson($indentLevel + 2),
                     $child->name(),
-                    $this->configuration->forceOmitEmpty() ? ',omitempty' : ''
+                    $child->isAlwaysDefined() ? '' : ',omitempty'
                 );
             }
 
             $go = sprintf("%s\n", $go);
         }
 
-        $output[] = sprintf("%s\n%s}", $go, static::indents($indentLevel));
+        $output[] = sprintf("%s\n%s}", rtrim($go), static::indents($indentLevel));
 
         return implode("\n\n", $output);
     }
