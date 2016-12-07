@@ -112,20 +112,27 @@ abstract class Parser
                 }
             }
 
-            $structExample = new \stdClass();
-
-            $omitempty = [];
-            foreach(array_keys($allFields) as $key)
+            if ($configuration->emptyStructToInterface() && 0 === count($allFields))
             {
-                $structExample->$key = $allFields[$key]['value'];
-                $omitempty[$key] = $allFields[$key]['count'] !== $sliceLength;
+                $type = new InterfaceType($configuration, $typeName, $typeExample);
             }
-
-            $type = static::parseStructType($configuration, $structExample, $typeName);
-            foreach($type->children() as $child)
+            else
             {
-                if ($omitempty[$child->name()])
-                    $child->notAlwaysDefined();
+                $structExample = new \stdClass();
+
+                $omitempty = [];
+                foreach(array_keys($allFields) as $key)
+                {
+                    $structExample->$key = $allFields[$key]['value'];
+                    $omitempty[$key] = $allFields[$key]['count'] !== $sliceLength;
+                }
+
+                $type = static::parseStructType($configuration, $structExample, $typeName);
+                foreach($type->children() as $child)
+                {
+                    if ($omitempty[$child->name()])
+                        $child->notAlwaysDefined();
+                }
             }
         }
         else if ('slice' === $sliceGoType)

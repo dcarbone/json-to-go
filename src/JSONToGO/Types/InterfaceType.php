@@ -28,6 +28,14 @@ class InterfaceType extends AbstractType
      */
     public function toJson($indentLevel = 0)
     {
+        if (null === $this->parent())
+        {
+            if ($this->isCollection())
+                return sprintf('type %s []%s', $this->goTypeName(), $this->type());
+
+            return sprintf('type %s %s', $this->goTypeName(), $this->type());
+        }
+
         if ($this->isCollection())
             return sprintf('[]%s', $this->type());
 

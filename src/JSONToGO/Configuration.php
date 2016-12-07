@@ -19,6 +19,7 @@ class Configuration
         'forceOmitEmpty' => false,
         'forceIntToFloat' => false,
         'forceScalarToPointer' => false,
+        'emptyStructToInterface' => false,
         'breakOutInlineStructs' => true,
         'initialNumberMap' => [
             'Zero_',
@@ -42,6 +43,8 @@ class Configuration
     protected $forceScalarToPointer;
     /** @var bool */
     protected $breakOutInlineStructs;
+    /** @var bool */
+    protected $emptyStructToInterface;
 
     /** @var string[] */
     protected $initialNumberMap;
@@ -151,6 +154,14 @@ class Configuration
     public function forceScalarToPointer()
     {
         return $this->forceScalarToPointer;
+    }
+
+    /**
+     * @return bool
+     */
+    public function emptyStructToInterface()
+    {
+        return $this->emptyStructToInterface;
     }
 
     /**
