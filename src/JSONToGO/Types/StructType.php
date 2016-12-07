@@ -1,5 +1,14 @@
 <?php namespace DCarbone\JSONToGO\Types;
 
+/*
+ * Copyright (C) 2016 Daniel Carbone (daniel.p.carbone@gmail.com)
+ *
+ * This software may be modified and distributed under the terms
+ * of the MIT license.  See the LICENSE file for details.
+ */
+
+use DCarbone\JSONToGO\Configuration;
+
 /**
  * Class StructType
  *
@@ -7,25 +16,26 @@
  */
 class StructType extends AbstractType
 {
-    /** @var \DCarbone\JSONToGO\Types\StructType */
-    private $parent = null;
-
     /** @var \DCarbone\JSONToGO\Types\StructType[] */
-    private $children = [];
-
-    /** @var \stdClass */
-    private $definition;
+    protected $children = [];
 
     /**
      * StructType constructor.
      *
-     * @param string $name
-     * @param \stdClass $definition
+     * @param \DCarbone\JSONToGO\Configuration $configuration
+     * @param string $rawName
      */
-    public function __construct($name, \stdClass $definition)
+    public function __construct(Configuration $configuration, $rawName)
     {
-        parent::__construct($name);
-        $this->definition = $definition;
+        parent::__construct($configuration, $rawName);
+    }
+
+    /**
+     * @return array
+     */
+    public function __debugInfo()
+    {
+        return parent::__debugInfo() + ['children' => $this->children];
     }
 
     /**
@@ -34,14 +44,6 @@ class StructType extends AbstractType
     public function type()
     {
         return 'struct';
-    }
-
-    /**
-     * @return \DCarbone\JSONToGO\Types\StructType
-     */
-    public function parent()
-    {
-        return $this->parent;
     }
 
     /**
@@ -63,41 +65,91 @@ class StructType extends AbstractType
     }
 
     /**
-     * @param \DCarbone\JSONToGO\Types\StructType $child
+     * @param \DCarbone\JSONToGO\Types\AbstractType $child
      * @return StructType
      */
-    public function addChild(StructType $child)
+    public function addChild(AbstractType $child)
     {
+        $child->setParent($this);
         $this->children[$child->name()] = $child;
         return $this;
     }
 
     /**
+     * @param int $indentLevel
      * @return string
      */
-    public function toJson()
+    public function toJson($indentLevel = 0)
     {
-        return '';
-    }
+        $output = [];
 
-    protected function parse()
-    {
-        $this->append("struct {\n");
-        $this->tabs++;
-        foreach(get_object_vars($scope) as $key => $value)
+        if ($this->configuration->breakOutInlineStructs())
         {
-            $propertyName = $this->formatPropertyName($key);
+            if ($this->isCollection())
+                $output[] = sprintf("type %s []*%s", $this->goTypeSliceName(), $this->goTypeName());
 
-            $this->indent($this->tabs);
-            $this->append($propertyName . ' ');
-            $this->parseScope($value, $propertyName);
-            $this->append(' `json:"' . $key);
-            if ($this->forceOmitEmpty || in_array($key, $omitempty, true))
-                $this->append(',omitempty');
-            $this->append("\"`\n");
+            $go = sprintf("type %s %s {\n", $this->goTypeName(), $this->type());
         }
-        $this->tabs--;
-        $this->indent($this->tabs);
-        $this->append('}');
+        else
+        {
+            if (null === $this->parent())
+            {
+                $go = sprintf(
+                    "type %s %s%s {\n",
+                    $this->goTypeName(),
+                    $this->isCollection() ? '[]' : '',
+                    $this->type()
+                );
+            }
+            else
+            {
+                $go = sprintf(
+                    "%s%s {\n",
+                    $this->isCollection() ? '[]' : '',
+                    $this->type()
+                );
+            }
+        }
+
+        foreach($this->children() as $child)
+        {
+            $go = sprintf(
+                '%s%s%s',
+                $go,
+                static::indents($indentLevel + 1),
+                $child->goName()
+            );
+
+            if ($child instanceof StructType && $this->configuration->breakOutInlineStructs())
+            {
+                // Add the child struct to the output list...
+                $output[] = $child->toJson();
+
+                $go = sprintf(
+                    "%s %s%s `json:\"%s\"%s`",
+                    $go,
+                    $child->isCollection() ? '' : '*',
+                    $child->isCollection() ? $child->goTypeSliceName() : $child->goTypeName(),
+                    $child->name(),
+                    $this->configuration->forceOmitEmpty() ? ',omitempty' : ''
+                );
+            }
+            else
+            {
+                $go = sprintf(
+                    "%s %s `json:\"%s\"%s`",
+                    $go,
+                    $child->toJson($indentLevel + 2),
+                    $child->name(),
+                    $this->configuration->forceOmitEmpty() ? ',omitempty' : ''
+                );
+            }
+
+            $go = sprintf("%s\n", $go);
+        }
+
+        $output[] = sprintf("%s\n%s}", $go, static::indents($indentLevel));
+
+        return implode("\n\n", $output);
     }
 }

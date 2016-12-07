@@ -1,5 +1,12 @@
 <?php namespace DCarbone\JSONToGO\Types;
 
+/*
+ * Copyright (C) 2016 Daniel Carbone (daniel.p.carbone@gmail.com)
+ *
+ * This software may be modified and distributed under the terms
+ * of the MIT license.  See the LICENSE file for details.
+ */
+
 /**
  * Class InterfaceType
  *
@@ -12,14 +19,18 @@ class InterfaceType extends AbstractType
      */
     public function type()
     {
-        return 'interface';
+        return 'interface{}';
     }
 
     /**
+     * @param int $indentLevel
      * @return string
      */
-    public function toJson()
+    public function toJson($indentLevel = 0)
     {
-        return '';
+        if ($this->isCollection())
+            return sprintf('[]%s', $this->type());
+
+        return $this->type();
     }
 }

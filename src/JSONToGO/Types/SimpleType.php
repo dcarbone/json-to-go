@@ -1,5 +1,14 @@
 <?php namespace DCarbone\JSONToGO\Types;
 
+/*
+ * Copyright (C) 2016 Daniel Carbone (daniel.p.carbone@gmail.com)
+ *
+ * This software may be modified and distributed under the terms
+ * of the MIT license.  See the LICENSE file for details.
+ */
+
+use DCarbone\JSONToGO\Configuration;
+
 /**
  * Class SimpleType
  *
@@ -13,12 +22,13 @@ class SimpleType extends AbstractType
     /**
      * SimpleType constructor.
      *
-     * @param string $name
+     * @param \DCarbone\JSONToGO\Configuration $configuration
+     * @param string $rawName
      * @param string $type
      */
-    public function __construct($name, $type)
+    public function __construct(Configuration $configuration, $rawName, $type)
     {
-        parent::__construct($name);
+        parent::__construct($configuration, $rawName);
         $this->type = $type;
     }
 
@@ -31,10 +41,36 @@ class SimpleType extends AbstractType
     }
 
     /**
+     * @param int $indentLevel
      * @return string
      */
-    public function toJson()
+    public function toJson($indentLevel = 0)
     {
-        return '';
+        if (null === $this->parent())
+        {
+            if ($this->isCollection())
+            {
+                return sprintf(
+                    'type %s []%s',
+                    $this->goTypeName(),
+                    $this->type()
+                );
+            }
+
+            return sprintf(
+                'type %s %s%s',
+                $this->goTypeName(),
+                $this->configuration->forceScalarToPointer() ? '*' : '',
+                $this->type()
+            );
+        }
+
+        if ($this->isCollection())
+            return sprintf('[]%s', $this->type());
+
+        if ($this->configuration->forceScalarToPointer())
+            return sprintf('*%s', $this->type());
+
+        return $this->type();
     }
 }
