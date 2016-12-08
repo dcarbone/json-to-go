@@ -95,7 +95,7 @@ abstract class AbstractType
         if (null === ($parent = $this->parent()))
             return $this->goName();
 
-        return sprintf('%s%s', $parent->goName(), $this->goName());
+        return sprintf('%s%s', $parent->goTypeName(), $this->goName());
     }
 
     /**
