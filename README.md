@@ -163,9 +163,9 @@ And executing the following:
 Will result in (pre `go fmt`):
 
 ```go
-type WebappServletSlice []*WebappServlet
+type RootTypeNameWebappServletSlice []*RootTypeNameWebappServlet
 
-type ServletInitparam struct {
+type RootTypeNameWebappServletInitparam struct {
 	ConfigGlossaryinstallationAt string `json:"configGlossary:installationAt"`
 	ConfigGlossaryadminEmail string `json:"configGlossary:adminEmail"`
 	ConfigGlossarypoweredBy string `json:"configGlossary:poweredBy"`
@@ -210,13 +210,13 @@ type ServletInitparam struct {
 	MaxURLLength int `json:"maxUrlLength"`
 }
 
-type WebappServlet struct {
+type RootTypeNameWebappServlet struct {
 	Servletname string `json:"servlet-name"`
 	Servletclass string `json:"servlet-class"`
-	Initparam *ServletInitparam `json:"init-param,omitempty"`
+	Initparam *RootTypeNameWebappServletInitparam `json:"init-param,omitempty"`
 }
 
-type WebappServletmapping struct {
+type RootTypeNameWebappServletmapping struct {
 	CofaxCDS string `json:"cofaxCDS"`
 	CofaxEmail string `json:"cofaxEmail"`
 	CofaxAdmin string `json:"cofaxAdmin"`
@@ -224,15 +224,15 @@ type WebappServletmapping struct {
 	CofaxTools string `json:"cofaxTools"`
 }
 
-type WebappTaglib struct {
+type RootTypeNameWebappTaglib struct {
 	Tagliburi string `json:"taglib-uri"`
 	Tagliblocation string `json:"taglib-location"`
 }
 
 type RootTypeNameWebapp struct {
-	Servlet WebappServletSlice `json:"servlet"`
-	Servletmapping *WebappServletmapping `json:"servlet-mapping"`
-	Taglib *WebappTaglib `json:"taglib"`
+	Servlet RootTypeNameWebappServletSlice `json:"servlet"`
+	Servletmapping *RootTypeNameWebappServletmapping `json:"servlet-mapping"`
+	Taglib *RootTypeNameWebappTaglib `json:"taglib"`
 }
 
 type RootTypeName struct {
