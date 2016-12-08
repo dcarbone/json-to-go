@@ -38,7 +38,7 @@ This class implements `__toString()`, and the return value is the parsed GO obje
 - If a key in a map is entirely comprised of numbers, it will be prefixed with `Num`
 - If a key in a map beings with a non-alphanumeric value, it will be prefixed with `X`
 - If a key in a map has a numerical first character, that character will be converted to a string following the map
-seen [here](./src/JSONToGO/Configuration.php#L23).  You may optionally define your own map when initializing the
+seen [here](./src/JSONToGO/Configuration.php#L24).  You may optionally define your own map when initializing the
 Configuration class.
 - If a type is not possible (is a NULL in the example json...), or if there is a value type conflict between keys
 within a map, the type will be defined as `interface{}`
