@@ -17,19 +17,8 @@ use DCarbone\JSONToGO\Parser;
  */
 class JSONToGO
 {
-    /** @var array */
-    public static $specialCharacterRewriteMap = [
-        '.' => 'DOT',
-        '_' => 'UNDERSCORE',
-        '-' => 'HYPHEN',
-    ];
-
     /** @var \DCarbone\JSONToGO\Configuration */
     protected $configuration;
-
-    /** @var mixed */
-    protected $decoded = null;
-
 
     /**
      * JSONToGO Constructor
