@@ -63,6 +63,20 @@ class StructType extends AbstractType
     }
 
     /**
+     * @return string
+     */
+    public function goTypeSliceName()
+    {
+        if ($this->isCollection())
+            return sprintf('%sSlice', $this->goTypeName());
+
+        throw new \BadMethodCallException(sprintf(
+            '"%s" is not a collection.',
+            $this->goTypeName()
+        ));
+    }
+
+    /**
      * @param int $indentLevel
      * @return string
      */

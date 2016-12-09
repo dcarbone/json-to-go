@@ -89,6 +89,13 @@ class Configuration
     ];
 
     /**
+     * Configuration constructor.
+     *
+     * @internal
+     */
+    protected function __construct() {}
+
+    /**
      * @return \DCarbone\JSONToGO\Configuration
      */
     public static function newDefaultConfiguration()

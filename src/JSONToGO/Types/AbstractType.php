@@ -99,20 +99,6 @@ abstract class AbstractType
     }
 
     /**
-     * @return string
-     */
-    public function goTypeSliceName()
-    {
-        if ($this->isCollection())
-            return sprintf('%sSlice', $this->goTypeName());
-
-        throw new \BadMethodCallException(sprintf(
-            '"%s" is not a collection.',
-            $this->goTypeName()
-        ));
-    }
-
-    /**
      * @return mixed
      */
     public function definition()
