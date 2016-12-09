@@ -34,16 +34,6 @@ class StructType extends AbstractType
     }
 
     /**
-     * @param \DCarbone\JSONToGO\Types\StructType $parent
-     * @return StructType
-     */
-    public function setParent(StructType $parent)
-    {
-        $this->parent = $parent;
-        return $this;
-    }
-
-    /**
      * @return \DCarbone\JSONToGO\Types\StructType[]
      */
     public function children()

@@ -34,18 +34,23 @@ abstract class AbstractType
     /** @var \DCarbone\JSONToGO\Types\StructType */
     protected $parent = null;
 
+    /** @var bool */
+    protected $root = false;
+
     /**
      * AbstractType constructor.
      *
      * @param \DCarbone\JSONToGO\Configuration $configuration
      * @param string $name
      * @param mixed $definition
+     * @param bool $root
      */
-    public function __construct(Configuration $configuration, $name, $definition)
+    public function __construct(Configuration $configuration, $name, $definition, $root = false)
     {
         $this->configuration = $configuration;
         $this->name = $name;
         $this->definition = $definition;
+        $this->root = $root;
     }
 
     /**
@@ -84,6 +89,9 @@ abstract class AbstractType
      */
     public function goName()
     {
+        if ($this->isRoot())
+            return $this->name();
+
         return Namer::formatPropertyName($this->configuration, $this->name());
     }
 
@@ -137,6 +145,23 @@ abstract class AbstractType
     public function notAlwaysDefined()
     {
         $this->alwaysDefined = false;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isRoot()
+    {
+        return $this->root;
+    }
+
+    /**
+     * @return AbstractType
+     */
+    public function root()
+    {
+        $this->root = true;
         return $this;
     }
 

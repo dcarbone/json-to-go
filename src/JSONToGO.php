@@ -43,7 +43,6 @@ class JSONToGO
 
         $new = new static($configuration);
 
-
         return $new->generate($typeName, $input);
     }
 
@@ -59,7 +58,6 @@ class JSONToGO
             $configuration = Configuration::newDefaultConfiguration();
 
         $new = new static($configuration);
-
 
         return $new->generate($typeName, $input);
     }
@@ -92,13 +90,24 @@ class JSONToGO
      */
     public function generate($typeName, $input)
     {
+        if (!is_string($typeName))
+            throw new \InvalidArgumentException(get_class($this).'::generate - $typeName must be string, '.gettype($typeName).' seen.');
+
+        if (!is_string($input))
+            throw new \InvalidArgumentException(get_class($this).'::generate - $input must be string, '.gettype($input).' seen.');
+
+        $typeName = trim($typeName);
+        if ('' === $typeName || !preg_match('/^[a-zA-Z][a-zA-Z0-9]*$/', $typeName))
+            throw new \InvalidArgumentException(get_class($this).'::generate - Root type name must follow "^[a-zA-Z][a-zA-Z0-9]*$", '.$typeName.' does not.');
+
+        $input = trim($input);
         if ('' === $input)
             throw new \RuntimeException(get_class($this).'::generate - Input is empty, please re-construct with valid input');
 
         $decoded = json_decode($input);
         if (JSON_ERROR_NONE !== json_last_error())
-            throw new \RuntimeException(json_last_error_msg());
+            throw new \RuntimeException(get_class($this).'::generate - Unable to json_decode input: '.json_last_error_msg());
 
-        return Parser::parseType($this->configuration, $decoded, $typeName);
+        return Parser::parseType($this->configuration, $decoded, $typeName, true);
     }
 }

@@ -22,9 +22,10 @@ abstract class Parser
      * @param \DCarbone\JSONToGO\Configuration $configuration
      * @param mixed $typeExample
      * @param string $typeName
+     * @param bool $root
      * @return \DCarbone\JSONToGO\Types\AbstractType
      */
-    public static function parseType(Configuration $configuration, $typeExample, $typeName)
+    public static function parseType(Configuration $configuration, $typeExample, $typeName, $root = false)
     {
         switch($goType = Typer::goType($configuration, $typeExample))
         {
@@ -43,6 +44,9 @@ abstract class Parser
             default:
                 $type = new SimpleType($configuration, $typeName, $typeExample, $goType);
         }
+
+        if ($root)
+            $type->root();
 
         return $type;
     }
