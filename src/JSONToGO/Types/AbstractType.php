@@ -69,7 +69,7 @@ abstract class AbstractType
      * @param int $indentLevel
      * @return string
      */
-    abstract public function toJson($indentLevel = 0);
+    abstract public function toGO($indentLevel = 0);
 
     /**
      * @return string
@@ -163,7 +163,7 @@ abstract class AbstractType
      */
     public function __toString()
     {
-        return $this->toJson(0);
+        return $this->toGO(0);
     }
 
     /**

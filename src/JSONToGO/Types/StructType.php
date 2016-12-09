@@ -80,7 +80,7 @@ class StructType extends AbstractType
      * @param int $indentLevel
      * @return string
      */
-    public function toJson($indentLevel = 0)
+    public function toGO($indentLevel = 0)
     {
         $output = [];
 
@@ -124,7 +124,7 @@ class StructType extends AbstractType
             if ($child instanceof StructType && $this->configuration->breakOutInlineStructs())
             {
                 // Add the child struct to the output list...
-                $output[] = $child->toJson();
+                $output[] = $child->toGO();
 
                 $go = sprintf(
                     '%s %s%s `json:"%s%s"`',
@@ -140,7 +140,7 @@ class StructType extends AbstractType
                 $go = sprintf(
                     '%s %s `json:"%s%s"`',
                     $go,
-                    $child->toJson($indentLevel + 2),
+                    $child->toGO($indentLevel + 2),
                     $child->name(),
                     $child->isAlwaysDefined() ? '' : ',omitempty'
                 );

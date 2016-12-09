@@ -45,7 +45,7 @@ class SimpleType extends AbstractType
      * @param int $indentLevel
      * @return string
      */
-    public function toJson($indentLevel = 0)
+    public function toGO($indentLevel = 0)
     {
         if (null === $this->parent())
         {
