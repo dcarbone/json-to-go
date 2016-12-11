@@ -30,19 +30,19 @@ abstract class Parser
         switch($goType = Typer::goType($configuration, $typeExample))
         {
             case 'struct':
-                $type = static::parseStructType($configuration, $typeExample, $typeName);
+                $type = static::parseStructType($configuration, $typeExample, $typeName, $root);
                 break;
 
             case 'slice':
-                $type = static::parseSliceType($configuration, $typeExample, $typeName);
+                $type = static::parseSliceType($configuration, $typeExample, $typeName, $root);
                 break;
 
             case 'interface{}':
-                $type = new InterfaceType($configuration, $typeName, $typeExample);
+                $type = new InterfaceType($configuration, $typeName, $typeExample, $root);
                 break;
 
             default:
-                $type = new SimpleType($configuration, $typeName, $typeExample, $goType);
+                $type = new SimpleType($configuration, $typeName, $typeExample, $goType, $root);
         }
 
         if ($root)
@@ -55,11 +55,15 @@ abstract class Parser
      * @param \DCarbone\JSONToGO\Configuration $configuration
      * @param \stdClass $typeExample
      * @param string $typeName
+     * @param bool $root
      * @return \DCarbone\JSONToGO\Types\StructType
      */
-    public static function parseStructType(Configuration $configuration, \stdClass $typeExample, $typeName)
+    public static function parseStructType(Configuration $configuration,
+                                           \stdClass $typeExample,
+                                           $typeName,
+                                           $root = false)
     {
-        $structType = new StructType($configuration, $typeName, $typeExample);
+        $structType = new StructType($configuration, $typeName, $typeExample, $root);
 
         foreach(get_object_vars($typeExample) as $key => $value)
         {
@@ -73,9 +77,10 @@ abstract class Parser
      * @param \DCarbone\JSONToGO\Configuration $configuration
      * @param array $typeExample
      * @param string $typeName
+     * @param bool $root
      * @return \DCarbone\JSONToGO\Types\AbstractType
      */
-    public static function parseSliceType(Configuration $configuration, array $typeExample, $typeName)
+    public static function parseSliceType(Configuration $configuration, array $typeExample, $typeName, $root = false)
     {
         $sliceGoType = null;
         $sliceLength = count($typeExample);
@@ -118,7 +123,7 @@ abstract class Parser
 
             if ($configuration->emptyStructToInterface() && 0 === count($allFields))
             {
-                $type = new InterfaceType($configuration, $typeName, $typeExample);
+                $type = new InterfaceType($configuration, $typeName, $typeExample, $root);
             }
             else
             {
@@ -131,7 +136,7 @@ abstract class Parser
                     $omitempty[$key] = $allFields[$key]['count'] !== $sliceLength;
                 }
 
-                $type = static::parseStructType($configuration, $structExample, $typeName);
+                $type = static::parseStructType($configuration, $structExample, $typeName, $root);
                 foreach($type->children() as $child)
                 {
                     if ($omitempty[$child->name()])
@@ -145,14 +150,14 @@ abstract class Parser
         }
         else if ('interface{}' === $sliceGoType)
         {
-            $type = new InterfaceType($configuration, $typeName, $typeExample);
+            $type = new InterfaceType($configuration, $typeName, $typeExample, $root);
         }
         else
         {
             if ($sliceGoType)
-                $type = new SimpleType($configuration, $typeName, $typeExample, $sliceGoType);
+                $type = new SimpleType($configuration, $typeName, $typeExample, $sliceGoType, $root);
             else
-                $type = new InterfaceType($configuration, $typeName, $typeExample);
+                $type = new InterfaceType($configuration, $typeName, $typeExample, $root);
         }
 
         $type->collection();
