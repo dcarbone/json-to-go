@@ -24,12 +24,7 @@ abstract class Typer
         $type = gettype($val);
 
         if ('string' === $type)
-        {
-            if (preg_match('/\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(\.\d+)?(\+\d\d:\d\d|Z)/S', $val))
-                return 'time.Time';
-
             return 'string';
-        }
 
         if ('integer' === $type)
         {
