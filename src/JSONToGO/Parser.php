@@ -27,7 +27,9 @@ abstract class Parser
      */
     public static function parseType(Configuration $configuration, $typeExample, $typeName, $root = false)
     {
-        switch($goType = Typer::goType($configuration, $typeExample))
+        list($goType, $typeExample) = Typer::goType($configuration, $typeExample);
+
+        switch($goType)
         {
             case 'struct':
                 $type = static::parseStructType($configuration, $typeExample, $typeName, $root);
@@ -87,7 +89,7 @@ abstract class Parser
 
         foreach($typeExample as $item)
         {
-            $thisType = Typer::goType($configuration, $item);
+            list($thisType) = Typer::goType($configuration, $item);
 
             if (null === $sliceGoType)
             {
@@ -109,6 +111,8 @@ abstract class Parser
             {
                 foreach(get_object_vars($item) as $key => $value)
                 {
+                    list($_, $value) = Typer::goType($configuration, $value);
+
                     if (!isset($allFields[$key]))
                     {
                         $allFields[$key] = [
