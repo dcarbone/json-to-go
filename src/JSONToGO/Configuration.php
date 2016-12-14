@@ -21,6 +21,7 @@ class Configuration
         'forceScalarToPointer' => false,
         'emptyStructToInterface' => false,
         'breakOutInlineStructs' => true,
+        'sanitizeInput' => false,
         'initialNumberMap' => [
             'Zero_',
             'One_',
@@ -45,6 +46,8 @@ class Configuration
     protected $breakOutInlineStructs;
     /** @var bool */
     protected $emptyStructToInterface;
+    /** @var bool */
+    protected $sanitizeInput;
 
     /** @var string[] */
     protected $initialNumberMap;
@@ -148,11 +151,31 @@ class Configuration
     }
 
     /**
+     * @param bool $forceOmitEmpty
+     * @return Configuration
+     */
+    public function setForceOmitEmpty($forceOmitEmpty)
+    {
+        $this->forceOmitEmpty = (bool)$forceOmitEmpty;
+        return $this;
+    }
+
+    /**
      * @return bool
      */
     public function forceIntToFloat()
     {
         return $this->forceIntToFloat;
+    }
+
+    /**
+     * @param bool $intToFloat
+     * @return Configuration
+     */
+    public function setForceIntToFloat($intToFloat)
+    {
+        $this->forceIntToFloat = (bool)$intToFloat;
+        return $this;
     }
 
     /**
@@ -164,6 +187,16 @@ class Configuration
     }
 
     /**
+     * @param bool $forceScalarToPointer
+     * @return Configuration
+     */
+    public function setForceScalarToPointer($forceScalarToPointer)
+    {
+        $this->forceScalarToPointer = (bool)$forceScalarToPointer;
+        return $this;
+    }
+
+    /**
      * @return bool
      */
     public function emptyStructToInterface()
@@ -172,11 +205,49 @@ class Configuration
     }
 
     /**
+     * @param bool $emptyStructToInterface
+     * @return Configuration
+     */
+    public function setEmptyStructToInterface($emptyStructToInterface)
+    {
+        $this->emptyStructToInterface = (bool)$emptyStructToInterface;
+        return $this;
+    }
+
+    /**
      * @return bool
      */
     public function breakOutInlineStructs()
     {
         return $this->breakOutInlineStructs;
+    }
+
+    /**
+     * @param bool $breakOutInlineStructs
+     * @return Configuration
+     */
+    public function setBreakOutInlineStructs($breakOutInlineStructs)
+    {
+        $this->breakOutInlineStructs = (bool)$breakOutInlineStructs;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function sanitizeInput()
+    {
+        return $this->sanitizeInput;
+    }
+
+    /**
+     * @param bool $sanitizeInput
+     * @return Configuration
+     */
+    public function setSanitizeInput($sanitizeInput)
+    {
+        $this->sanitizeInput = (bool)$sanitizeInput;
+        return $this;
     }
 
     /**
