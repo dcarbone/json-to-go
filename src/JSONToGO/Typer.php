@@ -17,39 +17,39 @@ abstract class Typer
     /**
      * @param \DCarbone\JSONToGO\Configuration $configuration
      * @param mixed $val
-     * @return array
+     * @return string
      */
     public static function goType(Configuration $configuration, $val)
     {
         $type = gettype($val);
 
         if ('string' === $type)
-            return ['string', 'string'];
+            return 'string';
 
         if ('integer' === $type)
         {
             if ($configuration->forceIntToFloat())
-                return ['float64', 1.0];
+                return 'float64';
 
             if ($val > -2147483648 && $val < 2147483647)
-                return ['int', 1];
+                return 'int';
 
-            return ['int64', 1];
+            return 'int64';
         }
 
         if ('boolean' === $type)
-            return ['bool', true];
+            return 'bool';
 
         if ('double' === $type)
-            return ['float64', 1.0];
+            return 'float64';
 
         if ('array' === $type)
-            return ['slice', $val];
+            return 'slice';
 
         if ('object' === $type)
-            return ['struct', $val];
+            return 'struct';
 
-        return ['interface{}', null];
+        return 'interface{}';
     }
 
     /**
