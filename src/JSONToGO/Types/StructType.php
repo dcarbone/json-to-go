@@ -93,7 +93,7 @@ class StructType extends AbstractType
                 $go = sprintf(
                     '%s *%s `json:"%s%s"`',
                     $go,
-                    $child->goTypeName(),
+                    $child instanceof SliceType ? $child->goTypeSliceName() : $child->goTypeName(),
                     $child->name(),
                     $child->isAlwaysDefined() ? '' : ',omitempty'
                 );
