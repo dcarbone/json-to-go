@@ -28,10 +28,7 @@ abstract class AbstractType
     /** @var bool */
     protected $alwaysDefined = true;
 
-    /** @var bool */
-    protected $collection = false;
-
-    /** @var \DCarbone\JSONToGO\Types\StructType */
+    /** @var \DCarbone\JSONToGO\Types\StructType|\DCarbone\JSONToGO\Types\SliceType */
     protected $parent = null;
 
     /** @var bool */
@@ -60,7 +57,6 @@ abstract class AbstractType
     {
         return [
             'name' => $this->name,
-            'collection' => $this->collection,
             'parent' => $this->parent
         ];
     }
@@ -103,6 +99,9 @@ abstract class AbstractType
         if (null === ($parent = $this->parent()))
             return $this->goName();
 
+        if ($parent instanceof SliceType)
+            return $parent->goTypeName();
+
         return sprintf('%s%s', $parent->goTypeName(), $this->goName());
     }
 
@@ -112,23 +111,6 @@ abstract class AbstractType
     public function definition()
     {
         return $this->definition;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isCollection()
-    {
-        return $this->collection;
-    }
-
-    /**
-     * @return AbstractType
-     */
-    public function collection()
-    {
-        $this->collection = true;
-        return $this;
     }
 
     /**
@@ -166,7 +148,7 @@ abstract class AbstractType
     }
 
     /**
-     * @return \DCarbone\JSONToGO\Types\StructType
+     * @return \DCarbone\JSONToGO\Types\StructType|\DCarbone\JSONToGO\Types\SliceType
      */
     public function parent()
     {
@@ -174,13 +156,22 @@ abstract class AbstractType
     }
 
     /**
-     * @param \DCarbone\JSONToGO\Types\StructType $parent
+     * @param \DCarbone\JSONToGO\Types\StructType|\DCarbone\JSONToGO\Types\SliceType $parent
      * @return AbstractType
      */
-    public function setParent(StructType $parent)
+    public function setParent($parent)
     {
-        $this->parent = $parent;
-        return $this;
+        if ($parent instanceof SliceType || $parent instanceof StructType)
+        {
+            $this->parent = $parent;
+            return $this;
+        }
+
+        throw new \InvalidArgumentException(sprintf(
+            'JSONToGO: Cannot assign type "%s" to parent of "%s".  Only Slice and Struct types may be parents.',
+            is_object($parent) ? get_class($parent) : gettype($parent),
+            $this->name()
+        ));
     }
 
     /**

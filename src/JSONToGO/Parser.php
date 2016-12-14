@@ -9,6 +9,7 @@
 
 use DCarbone\JSONToGO\Types\InterfaceType;
 use DCarbone\JSONToGO\Types\SimpleType;
+use DCarbone\JSONToGO\Types\SliceType;
 use DCarbone\JSONToGO\Types\StructType;
 
 /**
@@ -81,10 +82,12 @@ abstract class Parser
      * @param array $typeExample
      * @param string $typeName
      * @param bool $root
-     * @return \DCarbone\JSONToGO\Types\AbstractType
+     * @return \DCarbone\JSONToGO\Types\SliceType
      */
     public static function parseSliceType(Configuration $configuration, array $typeExample, $typeName, $root = false)
     {
+        $sliceType = new SliceType($configuration, $typeName, $typeExample, $root);
+
         $sliceGoType = null;
         $sliceLength = count($typeExample);
 
@@ -163,8 +166,8 @@ abstract class Parser
                 $type = new InterfaceType($configuration, $typeName, $typeExample, $root);
         }
 
-        $type->collection();
+        $sliceType->setSliceType($type);
 
-        return $type;
+        return $sliceType;
     }
 }

@@ -6,7 +6,7 @@ PHP Implementation of mholt/json-to-go
 ```json
 {
     "require": {
-        "dcarbone/json-to-go": "0.3.*"
+        "dcarbone/json-to-go": "0.4.*"
     }
 }
 ```
@@ -165,6 +165,7 @@ And executing the following:
 Will result in (pre `go fmt`):
 
 ```go
+
 type RootTypeNameWebappServletSlice []*RootTypeNameWebappServlet
 
 type RootTypeNameWebappServletInitparam struct {
@@ -232,7 +233,7 @@ type RootTypeNameWebappTaglib struct {
 }
 
 type RootTypeNameWebapp struct {
-	Servlet RootTypeNameWebappServletSlice `json:"servlet"`
+	Servlet *RootTypeNameWebappServlet `json:"servlet"`
 	Servletmapping *RootTypeNameWebappServletmapping `json:"servlet-mapping"`
 	Taglib *RootTypeNameWebappTaglib `json:"taglib"`
 }
@@ -240,4 +241,5 @@ type RootTypeNameWebapp struct {
 type RootTypeName struct {
 	Webapp *RootTypeNameWebapp `json:"web-app"`
 }
+
 ```

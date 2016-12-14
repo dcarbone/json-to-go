@@ -53,20 +53,6 @@ class StructType extends AbstractType
     }
 
     /**
-     * @return string
-     */
-    public function goTypeSliceName()
-    {
-        if ($this->isCollection())
-            return sprintf('%sSlice', $this->goTypeName());
-
-        throw new \BadMethodCallException(sprintf(
-            '"%s" is not a collection.',
-            $this->goTypeName()
-        ));
-    }
-
-    /**
      * @param int $indentLevel
      * @return string
      */
@@ -74,32 +60,20 @@ class StructType extends AbstractType
     {
         $output = [];
 
-        if ($this->configuration->breakOutInlineStructs())
+        if ($this->configuration->breakOutInlineStructs() || null === $this->parent())
         {
-            if ($this->isCollection())
-                $output[] = sprintf("type %s []*%s", $this->goTypeSliceName(), $this->goTypeName());
-
-            $go = sprintf("type %s %s {\n", $this->goTypeName(), $this->type());
+            $go = sprintf(
+                "type %s %s {\n",
+                $this->goTypeName(),
+                $this->type()
+            );
         }
         else
         {
-            if (null === $this->parent())
-            {
-                $go = sprintf(
-                    "type %s %s%s {\n",
-                    $this->goTypeName(),
-                    $this->isCollection() ? '[]' : '',
-                    $this->type()
-                );
-            }
-            else
-            {
-                $go = sprintf(
-                    "%s%s {\n",
-                    $this->isCollection() ? '[]' : '',
-                    $this->type()
-                );
-            }
+            $go = sprintf(
+                "%s {\n",
+                $this->type()
+            );
         }
 
         foreach($this->children() as $child)
@@ -111,16 +85,15 @@ class StructType extends AbstractType
                 $child->goName()
             );
 
-            if ($child instanceof StructType && $this->configuration->breakOutInlineStructs())
+            if (($child instanceof StructType || $child instanceof SliceType) && $this->configuration->breakOutInlineStructs())
             {
                 // Add the child struct to the output list...
                 $output[] = $child->toGO();
 
                 $go = sprintf(
-                    '%s %s%s `json:"%s%s"`',
+                    '%s *%s `json:"%s%s"`',
                     $go,
-                    $child->isCollection() ? '' : '*',
-                    $child->isCollection() ? $child->goTypeSliceName() : $child->goTypeName(),
+                    $child->goTypeName(),
                     $child->name(),
                     $child->isAlwaysDefined() ? '' : ',omitempty'
                 );

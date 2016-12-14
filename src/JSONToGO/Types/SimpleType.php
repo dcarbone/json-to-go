@@ -49,15 +49,6 @@ class SimpleType extends AbstractType
     {
         if (null === $this->parent())
         {
-            if ($this->isCollection())
-            {
-                return sprintf(
-                    'type %s []%s',
-                    $this->goTypeName(),
-                    $this->type()
-                );
-            }
-
             return sprintf(
                 'type %s %s%s',
                 $this->goTypeName(),
@@ -65,9 +56,6 @@ class SimpleType extends AbstractType
                 $this->type()
             );
         }
-
-        if ($this->isCollection())
-            return sprintf('[]%s', $this->type());
 
         if ($this->configuration->forceScalarToPointer())
             return sprintf('*%s', $this->type());
