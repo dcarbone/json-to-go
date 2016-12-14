@@ -30,7 +30,10 @@ abstract class Parser
         switch($goType = Typer::goType($configuration, $typeExample))
         {
             case 'struct':
-                $type = static::parseStructType($configuration, $typeExample, $typeName, $root);
+                if ($configuration->emptyStructToInterface() && 0 === count(get_object_vars($typeExample)))
+                    $type = new InterfaceType($configuration, $typeName, $typeExample, $goType, $root);
+                else
+                    $type = static::parseStructType($configuration, $typeExample, $typeName, $root);
                 break;
 
             case 'slice':

@@ -53,6 +53,7 @@ class:
 - `forceOmitEmpty` - Will place the `json:,omitempty` markup at the end of struct properties
 - `forceIntToFloat` - Will convert all `int` types to `float`.
 - `forceScalarToPointer` - Will turn all simple types (string, int, float, bool) into pointers
+- `emptyStructToInterface` - Will convert an object without properties into an `interface{}`
 - `breakOutInlineStructs` - Will create bespoke type definitions for nested objects
 - `sanitizeInput` - Will override the values present in the example json (see [here](./src/JSONToGO.php#L121))
 - `initialNumberMap`- Array to use for converting number characters to alpha characters at the beginning of struct
