@@ -133,7 +133,7 @@ class JSONToGO
                 {
                     $v = self::sanitizeInput($v);
                 }
-                return array_unique($tmp, SORT_REGULAR);
+                return array_values(array_unique($tmp, SORT_REGULAR));
 
             case 'object':
                 $tmp = $typeExample;
