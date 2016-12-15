@@ -85,18 +85,31 @@ class StructType extends AbstractType
                 $child->goName()
             );
 
-            if (($child instanceof StructType || $child instanceof SliceType) && $this->configuration->breakOutInlineStructs())
+            if (($child instanceof SliceType || $child instanceof StructType) && $this->configuration->breakOutInlineStructs())
             {
                 // Add the child struct to the output list...
                 $output[] = $child->toGO();
 
-                $go = sprintf(
-                    '%s *%s `json:"%s%s"`',
-                    $go,
-                    $child instanceof SliceType ? $child->goTypeSliceName() : $child->goTypeName(),
-                    $child->name(),
-                    $child->isAlwaysDefined() ? '' : ',omitempty'
-                );
+                if ($child instanceof StructType)
+                {
+                    $go = sprintf(
+                        '%s *%s `json:"%s%s"`',
+                        $go,
+                        $child->goTypeName(),
+                        $child->name(),
+                        $child->isAlwaysDefined() ? '' : ',omitempty'
+                    );
+                }
+                else
+                {
+                    $go = sprintf(
+                        '%s %s `json:"%s%s"`',
+                        $go,
+                        $child->goTypeSliceName(),
+                        $child->name(),
+                        $child->isAlwaysDefined() ? '' : ',omitempty'
+                    );
+                }
             }
             else
             {

@@ -54,22 +54,26 @@ class SliceType extends AbstractType
         $output = [];
 
         $sliceType = $this->sliceType();
-        $isStruct = $sliceType instanceof StructType;
+        $parent = $this->parent();
 
         if ($this->configuration->breakOutInlineStructs())
         {
-            if ($isStruct)
+            if ($sliceType instanceof StructType)
             {
                 $output[] = sprintf('type %s []*%s', $this->goTypeSliceName(), $this->goTypeName());
                 $output[] = $sliceType->toGO($indentLevel);
             }
+            else if (null === $parent)
+            {
+                $output[] = sprintf('type %s []%s', $this->goTypeName(), $sliceType->toGO());
+            }
+            else if ($parent instanceof SliceType)
+            {
+                $output[] = sprintf('[]%s', $sliceType->toGO($indentLevel));
+            }
             else
             {
-                $output[] = sprintf(
-                    'type %s []%s',
-                    $this->goTypeSliceName(),
-                    $sliceType->toGO()
-                );
+                $output[] = sprintf('type %s []%s', $this->goTypeSliceName(), $sliceType->toGO());
             }
         }
         else if (null === $this->parent())
