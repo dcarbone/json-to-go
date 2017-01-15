@@ -126,7 +126,7 @@ abstract class AbstractType
     }
 
     /**
-     * @return \DCarbone\JSONToGO\Types\StructType|\DCarbone\JSONToGO\Types\SliceType
+     * @return \DCarbone\JSONToGO\Types\StructType|\DCarbone\JSONToGO\Types\SliceType|\DCarbone\JSONToGO\Types\MapType
      */
     public function parent()
     {
