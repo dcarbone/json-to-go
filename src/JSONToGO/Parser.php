@@ -95,7 +95,7 @@ abstract class Parser
         $mapType = new MapType($configuration, $typeName, $typeExample, $parent);
 
         $varList = get_object_vars($typeExample);
-        $firstType = $configuration->callbacks()->goType($configuration, key($varList), reset($varList), $mapType);
+        $firstType = $configuration->callbacks()->goType($configuration, $typeName, reset($varList), $mapType);
 
         if (1 === count($varList))
         {
