@@ -236,7 +236,7 @@ type RootTypeNameWebappTaglib struct {
 }
 
 type RootTypeNameWebapp struct {
-	Servlet *RootTypeNameWebappServlet `json:"servlet"`
+	Servlet RootTypeNameWebappServletSlice `json:"servlet"`
 	Servletmapping *RootTypeNameWebappServletmapping `json:"servlet-mapping"`
 	Taglib *RootTypeNameWebappTaglib `json:"taglib"`
 }

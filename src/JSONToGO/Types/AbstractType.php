@@ -36,15 +36,12 @@ abstract class AbstractType
      * @param \DCarbone\JSONToGO\Configuration $configuration
      * @param string $name
      * @param mixed $definition
-     * @param null|\DCarbone\JSONToGO\Types\StructType|\DCarbone\JSONToGO\Types\SliceType|\DCarbone\JSONToGO\Types\MapType $parent
      */
-    public function __construct(Configuration $configuration, $name, $definition, $parent = null)
+    public function __construct(Configuration $configuration, $name, $definition)
     {
         $this->configuration = $configuration;
         $this->name = $name;
         $this->definition = $definition;
-        if (null !== $parent)
-            $this->setParent($parent);
     }
 
     /**
