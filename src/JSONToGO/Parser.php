@@ -34,7 +34,7 @@ abstract class Parser
         {
             case 'struct':
                 if ($configuration->emptyStructToInterface() && 0 === count(get_object_vars($typeExample)))
-                    $type = new InterfaceType($configuration, $typeName, $typeExample, $goType, $parent);
+                    $type = new InterfaceType($configuration, $typeName, $typeExample);
                 else
                     $type = static::parseStructType($configuration, $typeName, $typeExample, $parent);
                 break;
