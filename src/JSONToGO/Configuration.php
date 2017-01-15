@@ -1,7 +1,7 @@
 <?php namespace DCarbone\JSONToGO;
 
 /*
- * Copyright (C) 2016 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright (C) 2016-2017 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * This software may be modified and distributed under the terms
  * of the MIT license.  See the LICENSE file for details.
@@ -33,7 +33,8 @@ class Configuration
             'Seven_',
             'Eight_',
             'Nine_',
-        ]
+        ],
+        'callbacks' => true,
     ];
 
     /** @var bool */
@@ -51,6 +52,9 @@ class Configuration
 
     /** @var string[] */
     protected $initialNumberMap;
+
+    /** @var Callbacks */
+    protected $callbacks;
 
     /** @var string[] */
     protected static $commonInitialisms = [
@@ -106,7 +110,10 @@ class Configuration
         $c = new static;
         foreach(static::$defaultConfigurationValues as $k => $v)
         {
-            $c->{$k} = $v;
+            if ('callbacks' === $k)
+                $c->callbacks = new Callbacks();
+            else
+                $c->$k = $v;
         }
         return $c;
     }
@@ -123,20 +130,27 @@ class Configuration
             if (!isset(static::$defaultConfigurationValues[$k]))
                 throw new \InvalidArgumentException(sprintf('Configuration: No configuration property "%s" found.', $k));
 
-            $t = gettype($v);
-            $dt = gettype(static::$defaultConfigurationValues[$k]);
-
-            if ($t !== $dt)
+            if ('callbacks' === strtolower($k))
             {
-                throw new \InvalidArgumentException(sprintf(
-                    'Configuration: Type mismatch.  Expected "%s", saw "%s" for key "%s"',
-                    $dt,
-                    $t,
-                    $k
-                ));
+                $c->setCallbacks($v);
             }
+            else
+            {
+                $t = gettype($v);
+                $dt = gettype(static::$defaultConfigurationValues[$k]);
 
-            $c->{$k} = $v;
+                if ($t !== $dt)
+                {
+                    throw new \InvalidArgumentException(sprintf(
+                        'Configuration: Type mismatch.  Expected "%s", saw "%s" for key "%s"',
+                        $dt,
+                        $t,
+                        $k
+                    ));
+                }
+
+                $c->$k = $v;
+            }
         }
 
         return $c;
@@ -247,6 +261,39 @@ class Configuration
     public function setSanitizeInput($sanitizeInput)
     {
         $this->sanitizeInput = (bool)$sanitizeInput;
+        return $this;
+    }
+
+    /**
+     * @return \DCarbone\JSONToGO\Callbacks
+     */
+    public function callbacks()
+    {
+        return $this->callbacks;
+    }
+
+    /**
+     * @param Callbacks|array $callbacks
+     * @return Configuration
+     */
+    public function setCallbacks($callbacks)
+    {
+        if ($callbacks instanceof Callbacks)
+        {
+            $this->callbacks = $callbacks;
+        }
+        else if (is_array($callbacks))
+        {
+            $this->callbacks = new Callbacks($callbacks);
+        }
+        else
+        {
+            throw new \InvalidArgumentException(
+                'Configuration: Type mismatch: "callbacks" must either be instance of ' .
+                '\\DCarbone\\JSONToGo\\Callbacks or an array of callback type => callable'
+            );
+        }
+
         return $this;
     }
 

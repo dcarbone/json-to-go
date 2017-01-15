@@ -1,13 +1,14 @@
 <?php namespace DCarbone\JSONToGO;
 
 /*
- * Copyright (C) 2016 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright (C) 2016-2017 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * This software may be modified and distributed under the terms
  * of the MIT license.  See the LICENSE file for details.
  */
 
 use DCarbone\JSONToGO\Types\InterfaceType;
+use DCarbone\JSONToGO\Types\MapType;
 use DCarbone\JSONToGO\Types\SimpleType;
 use DCarbone\JSONToGO\Types\SliceType;
 use DCarbone\JSONToGO\Types\StructType;
@@ -21,57 +22,59 @@ abstract class Parser
 {
     /**
      * @param \DCarbone\JSONToGO\Configuration $configuration
-     * @param mixed $typeExample
      * @param string $typeName
-     * @param bool $root
+     * @param mixed $typeExample
+     * @param \DCarbone\JSONToGO\Types\StructType|\DCarbone\JSONToGO\Types\SliceType|\DCarbone\JSONToGO\Types\MapType $parent
      * @return \DCarbone\JSONToGO\Types\AbstractType
      */
-    public static function parseType(Configuration $configuration, $typeExample, $typeName, $root = false)
+    public static function parseType(Configuration $configuration, $typeName, $typeExample, $parent = null)
     {
-        switch($goType = Typer::goType($configuration, $typeExample))
+        $goType = $configuration->callbacks()->goType($configuration, $typeName, $typeExample, $parent);
+        switch($goType)
         {
             case 'struct':
                 if ($configuration->emptyStructToInterface() && 0 === count(get_object_vars($typeExample)))
-                    $type = new InterfaceType($configuration, $typeName, $typeExample, $goType, $root);
+                    $type = new InterfaceType($configuration, $typeName, $typeExample, $goType, $parent);
                 else
-                    $type = static::parseStructType($configuration, $typeExample, $typeName, $root);
+                    $type = static::parseStructType($configuration, $typeName, $typeExample, $parent);
+                break;
+
+            case 'map':
+                $type = static::parseMapType($configuration, $typeName, $typeExample, $parent);
                 break;
 
             case 'slice':
-                $type = static::parseSliceType($configuration, $typeExample, $typeName, $root);
+                $type = static::parseSliceType($configuration, $typeName, $typeExample, $parent);
                 break;
 
             case 'interface{}':
-                $type = new InterfaceType($configuration, $typeName, $typeExample, $root);
+                $type = new InterfaceType($configuration, $typeName, $typeExample, $parent);
                 break;
 
             default:
-                $type = new SimpleType($configuration, $typeName, $typeExample, $goType, $root);
+                $type = new SimpleType($configuration, $typeName, $typeExample, $goType, $parent);
         }
-
-        if ($root)
-            $type->root();
 
         return $type;
     }
 
     /**
      * @param \DCarbone\JSONToGO\Configuration $configuration
-     * @param \stdClass $typeExample
      * @param string $typeName
-     * @param bool $root
+     * @param \stdClass $typeExample
+     * @param \DCarbone\JSONToGO\Types\StructType|\DCarbone\JSONToGO\Types\SliceType|\DCarbone\JSONToGO\Types\MapType $parent
      * @return \DCarbone\JSONToGO\Types\StructType
      */
     public static function parseStructType(Configuration $configuration,
-                                           \stdClass $typeExample,
                                            $typeName,
-                                           $root = false)
+                                           \stdClass $typeExample,
+                                           $parent = null)
     {
-        $structType = new StructType($configuration, $typeName, $typeExample, $root);
+        $structType = new StructType($configuration, $typeName, $typeExample, $parent);
 
-        foreach(get_object_vars($typeExample) as $key => $value)
+        foreach(get_object_vars($typeExample) as $childTypeName => $childTypeExample)
         {
-            $structType->addChild(static::parseType($configuration, $value, $key));
+            $structType->addChild(static::parseType($configuration, $childTypeName, $childTypeExample, $structType));
         }
 
         return $structType;
@@ -79,21 +82,67 @@ abstract class Parser
 
     /**
      * @param \DCarbone\JSONToGO\Configuration $configuration
-     * @param array $typeExample
      * @param string $typeName
-     * @param bool $root
+     * @param \stdClass $typeExample
+     * @param \DCarbone\JSONToGO\Types\StructType|\DCarbone\JSONToGO\Types\SliceType|\DCarbone\JSONToGO\Types\MapType $parent
+     * @return \DCarbone\JSONToGO\Types\MapType
+     */
+    public static function parseMapType(Configuration $configuration,
+                                        $typeName,
+                                        \stdClass $typeExample,
+                                        $parent = null)
+    {
+        $mapType = new MapType($configuration, $typeName, $typeExample, $parent);
+
+        $varList = get_object_vars($typeExample);
+        $firstType = $configuration->callbacks()->goType($configuration, key($varList), reset($varList), $mapType);
+
+        if (1 === count($varList))
+        {
+            $type = static::parseType($configuration, $typeName, reset($varList), $mapType);
+        }
+        else
+        {
+            $same = true;
+            foreach($varList as $k => $v)
+            {
+                $thisType = $configuration->callbacks()->goType($configuration, $typeName, $v, $mapType);
+                if ($firstType !== $thisType)
+                {
+                    $same = false;
+                    break;
+                }
+            }
+
+            if ($same)
+                $type = static::parseType($configuration, $typeName, reset($varList), $mapType);
+            else
+               $type = new InterfaceType($configuration, $typeName, reset($varList), $mapType);
+
+        }
+
+        $mapType->setMapType($type);
+
+        return $mapType;
+    }
+
+    /**
+     * @param \DCarbone\JSONToGO\Configuration $configuration
+     * @param string $typeName
+     * @param array $typeExample
+     * @param \DCarbone\JSONToGO\Types\StructType|\DCarbone\JSONToGO\Types\SliceType|\DCarbone\JSONToGO\Types\MapType $parent
      * @return \DCarbone\JSONToGO\Types\SliceType
      */
-    public static function parseSliceType(Configuration $configuration, array $typeExample, $typeName, $root = false)
+    public static function parseSliceType(Configuration $configuration, $typeName, array $typeExample, $parent = null)
     {
-        $sliceType = new SliceType($configuration, $typeName, $typeExample, $root);
+        $sliceType = new SliceType($configuration, $typeName, $typeExample, $parent);
 
         $sliceGoType = null;
         $sliceLength = count($typeExample);
 
         foreach($typeExample as $item)
         {
-            $thisType = Typer::goType($configuration, $item);
+            $thisType = $configuration->callbacks()->goType($configuration, $typeName, $typeExample, $parent);
 
             if (null === $sliceGoType)
             {
@@ -101,7 +150,7 @@ abstract class Parser
             }
             else if ($sliceGoType !== $thisType)
             {
-                $sliceGoType = Typer::mostSpecificPossibleGoType($thisType, $sliceGoType);
+                $sliceGoType = $configuration->callbacks()->mostSpecificPossibleGoType($thisType, $sliceGoType);
                 if ('interface{}' === $sliceGoType)
                     break;
             }
@@ -129,7 +178,7 @@ abstract class Parser
 
             if ($configuration->emptyStructToInterface() && 0 === count($allFields))
             {
-                $type = new InterfaceType($configuration, $typeName, $typeExample, $root);
+                $type = new InterfaceType($configuration, $typeName, $typeExample, $parent);
             }
             else
             {
@@ -142,7 +191,7 @@ abstract class Parser
                     $omitempty[$key] = $allFields[$key]['count'] !== $sliceLength;
                 }
 
-                $type = static::parseStructType($configuration, $structExample, $typeName, $root);
+                $type = static::parseStructType($configuration, $typeName, $structExample, $parent);
                 foreach($type->children() as $child)
                 {
                     if ($omitempty[$child->name()])
@@ -152,18 +201,18 @@ abstract class Parser
         }
         else if ('slice' === $sliceGoType)
         {
-            $type = static::parseType($configuration, reset($typeExample), $typeName);
+            $type = static::parseType($configuration, $typeName, reset($typeExample), $parent);
         }
         else if ('interface{}' === $sliceGoType)
         {
-            $type = new InterfaceType($configuration, $typeName, $typeExample, $root);
+            $type = new InterfaceType($configuration, $typeName, $typeExample, $parent);
         }
         else
         {
             if ($sliceGoType)
-                $type = new SimpleType($configuration, $typeName, $typeExample, $sliceGoType, $root);
+                $type = new SimpleType($configuration, $typeName, $typeExample, $sliceGoType, $parent);
             else
-                $type = new InterfaceType($configuration, $typeName, $typeExample, $root);
+                $type = new InterfaceType($configuration, $typeName, $typeExample, $parent);
         }
 
         $sliceType->setSliceType($type);

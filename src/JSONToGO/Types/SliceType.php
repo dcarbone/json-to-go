@@ -67,7 +67,7 @@ class SliceType extends AbstractType
             {
                 $output[] = sprintf('type %s []%s', $this->goTypeName(), $sliceType->toGO());
             }
-            else if ($parent instanceof SliceType)
+            else if ($parent instanceof SliceType || $parent instanceof MapType)
             {
                 $output[] = sprintf('[]%s', $sliceType->toGO($indentLevel));
             }
@@ -76,7 +76,7 @@ class SliceType extends AbstractType
                 $output[] = sprintf('type %s []%s', $this->goTypeSliceName(), $sliceType->toGO());
             }
         }
-        else if (null === $this->parent())
+        else if (null === $parent)
         {
             $output[] = sprintf(
                 'type %s []%s',

@@ -6,7 +6,7 @@ PHP Implementation of mholt/json-to-go
 ```json
 {
     "require": {
-        "dcarbone/json-to-go": "0.4.*"
+        "dcarbone/json-to-go": "0.5.*"
     }
 }
 ```
@@ -57,6 +57,9 @@ class:
 - `breakOutInlineStructs` - Will create bespoke type definitions for nested objects
 - `sanitizeInput` - Will override the values present in the example json (see [here](./src/JSONToGO.php#L121))
 - `initialNumberMap`- Array to use for converting number characters to alpha characters at the beginning of struct
+- `callbacks` - Instance of [Callbacks](./src/JSONToGO/Callbacks.php) or array of `['callback' => callable]` where
+  `callback` == name of parameter on [Callbacks](./src/JSONToGO/Callbacks.php) and `callable` == any valid php callable
+  that accepts the parameters present in the function named the same as the property.
 property names (e.g.: `80211X` becomes `Eight_0211X`)
 
 ## Examples:

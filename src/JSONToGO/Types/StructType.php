@@ -1,7 +1,7 @@
 <?php namespace DCarbone\JSONToGO\Types;
 
 /*
- * Copyright (C) 2016 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright (C) 2016-2017 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * This software may be modified and distributed under the terms
  * of the MIT license.  See the LICENSE file for details.
@@ -60,7 +60,9 @@ class StructType extends AbstractType
     {
         $output = [];
 
-        if ($this->configuration->breakOutInlineStructs() || null === $this->parent())
+        $breakOutInlineStructs = $this->configuration->breakOutInlineStructs();
+
+        if ($breakOutInlineStructs || null === $this->parent())
         {
             $go = sprintf(
                 "type %s %s {\n",
@@ -85,7 +87,7 @@ class StructType extends AbstractType
                 $child->goName()
             );
 
-            if (($child instanceof SliceType || $child instanceof StructType) && $this->configuration->breakOutInlineStructs())
+            if ($breakOutInlineStructs && !($child instanceof SimpleType))
             {
                 // Add the child struct to the output list...
                 $output[] = $child->toGO();
@@ -100,12 +102,22 @@ class StructType extends AbstractType
                         $child->isAlwaysDefined() ? '' : ',omitempty'
                     );
                 }
-                else
+                else if ($child instanceof SliceType)
                 {
                     $go = sprintf(
                         '%s %s `json:"%s%s"`',
                         $go,
                         $child->goTypeSliceName(),
+                        $child->name(),
+                        $child->isAlwaysDefined() ? '' : ',omitempty'
+                    );
+                }
+                else if ($child instanceof MapType)
+                {
+                    $go = sprintf(
+                        '%s %s `json:"%s%s"`',
+                        $go,
+                        $child->goTypeMapName(),
                         $child->name(),
                         $child->isAlwaysDefined() ? '' : ',omitempty'
                     );

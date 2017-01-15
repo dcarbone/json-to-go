@@ -1,7 +1,7 @@
 <?php namespace DCarbone\JSONToGO\Types;
 
 /*
- * Copyright (C) 2016 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright (C) 2016-2017 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * This software may be modified and distributed under the terms
  * of the MIT license.  See the LICENSE file for details.
@@ -26,10 +26,11 @@ class SimpleType extends AbstractType
      * @param string $name
      * @param int|float|bool|string $definition
      * @param string $type
+     * @param null|\DCarbone\JSONToGO\Types\StructType|\DCarbone\JSONToGO\Types\SliceType|\DCarbone\JSONToGO\Types\MapType $parent
      */
-    public function __construct(Configuration $configuration, $name, $definition, $type)
+    public function __construct(Configuration $configuration, $name, $definition, $type, $parent = null)
     {
-        parent::__construct($configuration, $name, $definition);
+        parent::__construct($configuration, $name, $definition, $parent);
         $this->type = $type;
     }
 

@@ -1,14 +1,13 @@
 <?php namespace DCarbone\JSONToGO\Types;
 
 /*
- * Copyright (C) 2016 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright (C) 2016-2017 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * This software may be modified and distributed under the terms
  * of the MIT license.  See the LICENSE file for details.
  */
 
 use DCarbone\JSONToGO\Configuration;
-use DCarbone\JSONToGO\Namer;
 
 /**
  * Class AbstractType
@@ -28,11 +27,8 @@ abstract class AbstractType
     /** @var bool */
     protected $alwaysDefined = true;
 
-    /** @var \DCarbone\JSONToGO\Types\StructType|\DCarbone\JSONToGO\Types\SliceType */
+    /** @var \DCarbone\JSONToGO\Types\StructType|\DCarbone\JSONToGO\Types\SliceType|\DCarbone\JSONToGO\Types\MapType */
     protected $parent = null;
-
-    /** @var bool */
-    protected $root = false;
 
     /**
      * AbstractType constructor.
@@ -40,14 +36,15 @@ abstract class AbstractType
      * @param \DCarbone\JSONToGO\Configuration $configuration
      * @param string $name
      * @param mixed $definition
-     * @param bool $root
+     * @param null|\DCarbone\JSONToGO\Types\StructType|\DCarbone\JSONToGO\Types\SliceType|\DCarbone\JSONToGO\Types\MapType $parent
      */
-    public function __construct(Configuration $configuration, $name, $definition, $root = false)
+    public function __construct(Configuration $configuration, $name, $definition, $parent = null)
     {
         $this->configuration = $configuration;
         $this->name = $name;
         $this->definition = $definition;
-        $this->root = $root;
+        if (null !== $parent)
+            $this->setParent($parent);
     }
 
     /**
@@ -57,7 +54,8 @@ abstract class AbstractType
     {
         return [
             'name' => $this->name,
-            'parent' => $this->parent
+            'parent' => $this->parent,
+            'alwaysDefined' => $this->alwaysDefined,
         ];
     }
 
@@ -85,10 +83,10 @@ abstract class AbstractType
      */
     public function goName()
     {
-        if ($this->isRoot())
+        if (null === $this->parent())
             return $this->name();
 
-        return Namer::formatPropertyName($this->configuration, $this->name());
+        return $this->configuration->callbacks()->formatPropertyName($this->configuration, $this->name());
     }
 
     /**
@@ -99,7 +97,7 @@ abstract class AbstractType
         if (null === ($parent = $this->parent()))
             return $this->goName();
 
-        if ($parent instanceof SliceType)
+        if ($parent instanceof SliceType || $parent instanceof MapType)
             return $parent->goTypeName();
 
         return sprintf('%s%s', $parent->goTypeName(), $this->goName());
@@ -131,23 +129,6 @@ abstract class AbstractType
     }
 
     /**
-     * @return bool
-     */
-    public function isRoot()
-    {
-        return $this->root;
-    }
-
-    /**
-     * @return AbstractType
-     */
-    public function root()
-    {
-        $this->root = true;
-        return $this;
-    }
-
-    /**
      * @return \DCarbone\JSONToGO\Types\StructType|\DCarbone\JSONToGO\Types\SliceType
      */
     public function parent()
@@ -156,12 +137,12 @@ abstract class AbstractType
     }
 
     /**
-     * @param \DCarbone\JSONToGO\Types\StructType|\DCarbone\JSONToGO\Types\SliceType $parent
+     * @param \DCarbone\JSONToGO\Types\StructType|\DCarbone\JSONToGO\Types\SliceType|\DCarbone\JSONToGO\Types\MapType $parent
      * @return AbstractType
      */
     public function setParent($parent)
     {
-        if ($parent instanceof SliceType || $parent instanceof StructType)
+        if ($parent instanceof SliceType || $parent instanceof StructType || $parent instanceof MapType)
         {
             $this->parent = $parent;
             return $this;
