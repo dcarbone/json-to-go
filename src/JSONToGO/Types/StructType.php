@@ -87,7 +87,7 @@ class StructType extends AbstractType
                 $child->goName()
             );
 
-            if ($breakOutInlineStructs && !($child instanceof SimpleType))
+            if ($breakOutInlineStructs && !($child instanceof SimpleType || $child instanceof InterfaceType))
             {
                 // Add the child struct to the output list...
                 $output[] = $child->toGO();
