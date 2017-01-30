@@ -52,6 +52,7 @@ class:
 
 - `forceOmitEmpty` - Will place the `json:,omitempty` markup at the end of struct properties
 - `forceIntToFloat` - Will convert all `int` types to `float`.
+- `useSimpleInt` - Will, if using ints, use the simple `int` type rather than attempting to determine `int32` vs `int64`
 - `forceScalarToPointer` - Will turn all simple types (string, int, float, bool) into pointers
 - `emptyStructToInterface` - Will convert an object without properties into an `interface{}`
 - `breakOutInlineStructs` - Will create bespoke type definitions for nested objects

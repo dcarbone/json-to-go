@@ -18,6 +18,7 @@ class Configuration
     protected static $defaultConfigurationValues = [
         'forceOmitEmpty' => false,
         'forceIntToFloat' => false,
+        'useSimpleInt' => false,
         'forceScalarToPointer' => false,
         'emptyStructToInterface' => false,
         'breakOutInlineStructs' => true,
@@ -41,6 +42,8 @@ class Configuration
     protected $forceOmitEmpty;
     /** @var bool */
     protected $forceIntToFloat;
+    /** @var bool */
+    protected $useSimpleInt;
     /** @var bool */
     protected $forceScalarToPointer;
     /** @var bool */
@@ -190,6 +193,24 @@ class Configuration
     {
         $this->forceIntToFloat = (bool)$intToFloat;
         return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function useSimpleInt()
+    {
+        return $this->useSimpleInt;
+    }
+
+    /**
+     * @param bool $simpleInt
+     * @return bool
+     */
+    public function setUseSimpleInt($simpleInt)
+    {
+        $this->useSimpleInt = (bool)$simpleInt;
+        return $this->useSimpleInt;
     }
 
     /**

@@ -33,8 +33,11 @@ abstract class Typer
             if ($configuration->forceIntToFloat())
                 return 'float64';
 
-            if ($typeExample > -2147483648 && $typeExample < 2147483647)
+            if ($configuration->useSimpleInt())
                 return 'int';
+
+            if ($typeExample > -2147483648 && $typeExample < 2147483647)
+                return 'int32';
 
             return 'int64';
         }
