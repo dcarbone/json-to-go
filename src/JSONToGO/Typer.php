@@ -37,7 +37,7 @@ abstract class Typer
                 return 'int';
 
             if ($typeExample > -2147483648 && $typeExample < 2147483647)
-                return 'int32';
+                return 'int';
 
             return 'int64';
         }
