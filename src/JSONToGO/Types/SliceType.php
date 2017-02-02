@@ -58,37 +58,30 @@ class SliceType extends AbstractType
 
         if ($this->configuration->breakOutInlineStructs())
         {
-            if (null === $parent)
+            if ($sliceType instanceof StructType)
             {
-                $output[] = sprintf('type %s []%s', $this->goTypeName(), $sliceType->toGO());
-            }
-            else
-            {
-                if ($parent instanceof MapType)
+                if ($parent instanceof SliceType)
                 {
-                    $output[] = sprintf('[]%s', $sliceType->toGO($indentLevel));
-                }
-                else if ($parent instanceof SliceType)
-                {
-                    if ($sliceType instanceof StructType)
-                    {
-                        $output[] = sprintf('[]*%s', $this->goTypeSliceName(), $this->goTypeName());
-                        $output[] = $sliceType->toGO($indentLevel);
-                    }
-                    else
-                    {
-                        $output[] = sprintf('[]%s', $sliceType->toGO($indentLevel));
-                    }
-                }
-                else if ($sliceType instanceof StructType)
-                {
-                    $output[] = sprintf('type %s []*%s', $this->goTypeSliceName(), $this->goTypeName());
-                    $output[] = $sliceType->toGO($indentLevel);
+                    $output[] = sprintf('[]*%s', $sliceType->goTypeName());
                 }
                 else
                 {
-                    $output[] = sprintf('type %s []%s', $this->goTypeSliceName(), $sliceType->toGO());
+                    $output[] = sprintf('type %s []*%s', $this->goTypeSliceName(), $this->goTypeName());
                 }
+
+                $output[] = $sliceType->toGO($indentLevel);
+            }
+            else if (null === $parent)
+            {
+                $output[] = sprintf('type %s []%s', $this->goTypeName(), $sliceType->toGO());
+            }
+            else if ($parent instanceof SliceType || $parent instanceof MapType)
+            {
+                $output[] = sprintf('[]%s', $sliceType->toGO($indentLevel));
+            }
+            else
+            {
+                $output[] = sprintf('type %s []%s', $this->goTypeSliceName(), $sliceType->toGO());
             }
         }
         else if (null === $parent)
