@@ -80,6 +80,11 @@ class SliceType extends AbstractType
                         $output[] = sprintf('[]%s', $sliceType->toGO($indentLevel));
                     }
                 }
+                else if ($sliceType instanceof StructType)
+                {
+                    $output[] = sprintf('type %s []*%s', $this->goTypeSliceName(), $this->goTypeName());
+                    $output[] = $sliceType->toGO($indentLevel);
+                }
                 else
                 {
                     $output[] = sprintf('type %s []%s', $this->goTypeSliceName(), $sliceType->toGO());
