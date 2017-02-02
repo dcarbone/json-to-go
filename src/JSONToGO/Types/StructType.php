@@ -61,8 +61,9 @@ class StructType extends AbstractType
         $output = [];
 
         $breakOutInlineStructs = $this->configuration->breakOutInlineStructs();
+        $parent = $this->parent();
 
-        if ($breakOutInlineStructs || null === $this->parent())
+        if ($breakOutInlineStructs || null === $parent)
         {
             $go = sprintf(
                 "type %s %s {\n",

@@ -70,13 +70,16 @@ class Callbacks
     }
 
     /**
+     * @param \DCarbone\JSONToGO\Configuration $configuration
      * @param string $type1
+     * @param mixed $type1Example
      * @param string $type2
+     * @param mixed $type2Example
      * @return string
      */
-    public function mostSpecificPossibleGoType($type1, $type2)
+    public function mostSpecificPossibleGoType(Configuration $configuration, $type1, $type1Example, $type2, $type2Example)
     {
-        return call_user_func($this->mostSpecificPossibleGoType, $type1, $type2);
+        return call_user_func($this->mostSpecificPossibleGoType, $configuration, $type1, $type1Example, $type2, $type2Example);
     }
 
     /**

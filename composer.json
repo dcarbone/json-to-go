@@ -19,6 +19,9 @@
         "php": ">=5.6.0"
     },
     "autoload": {
+        "files": [
+            "./src/go_types.php"
+        ],
         "psr-4": {
             "DCarbone\\": "src/"
         }

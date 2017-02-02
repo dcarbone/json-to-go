@@ -138,6 +138,7 @@ abstract class Parser
         $sliceType = new SliceType($configuration, $typeName, $typeExample, $parent);
 
         $sliceGoType = null;
+        $sliceGoTypeExample = null;
         $sliceLength = count($typeExample);
 
         foreach($typeExample as $item)
@@ -147,10 +148,14 @@ abstract class Parser
             if (null === $sliceGoType)
             {
                 $sliceGoType = $thisType;
+                $sliceGoTypeExample = $item;
             }
             else if ($sliceGoType !== $thisType)
             {
-                $sliceGoType = $configuration->callbacks()->mostSpecificPossibleGoType($thisType, $sliceGoType);
+                $sliceGoType = $configuration
+                    ->callbacks()
+                    ->mostSpecificPossibleGoType($configuration, $thisType, $item, $sliceGoType, $sliceGoTypeExample);
+
                 if ('interface{}' === $sliceGoType)
                     break;
             }
