@@ -30,7 +30,7 @@ class MapType extends AbstractType
      */
     public function type()
     {
-        return 'map[string]';
+        return GOTYPE_MAP;
     }
 
     /**

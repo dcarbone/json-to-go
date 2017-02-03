@@ -23,7 +23,7 @@ class SliceType extends AbstractType
      */
     public function type()
     {
-        return '[]';
+        return GOTYPE_SLICE;
     }
 
     /**

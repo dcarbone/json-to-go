@@ -212,37 +212,37 @@ abstract class Parser
         }
         else if ($sliceGoType instanceof SliceType)
         {
-//            if (2 > count($typeExample))
-//            {
+            if (2 > count($typeExample))
+            {
                 // if there is no example or only one example, no further parsing is needed
                 $type = static::parseType($configuration, $typeName, reset($typeExample), $sliceType);
-//            }
-//            else
-//            {
-//                // if we have more than one child of this slice, loop through and ensure that all child
-//                $sliceSubTypeList = [];
-//
-//                foreach($typeExample as $i => $subType)
-//                {
-//                    $sliceSubTypeList[] = static::parseType($configuration, $typeName, $subType, $sliceType);
-//                }
-//
-//
-//                $thisType = null;
-//                foreach($sliceSubTypeList as $sliceSubType)
-//                {
-//                    if (null === $thisType)
-//                    {
-//                        $thisType = $sliceSubType;
-//                    }
-//                    else if ($thisType instanceof $sliceSubType)
-//                    {
-////                        if ($thisType instanceof SliceType)
-//                    }
-//                }
-//
-//                var_dump($sliceSubTypeList);exit;
-//            }
+            }
+            else
+            {
+                // if we have more than one child of this slice, loop through and ensure that all child
+                $sliceSubTypeList = [];
+
+                foreach($typeExample as $i => $subType)
+                {
+                    $sliceSubTypeList[] = static::parseType($configuration, $typeName, $subType, $sliceType);
+                }
+
+                $type = null;
+
+                foreach($sliceSubTypeList as $sliceSubType)
+                {
+                    if (null === $type)
+                    {
+                        $type = $sliceSubType;
+                    }
+                    else if ($type instanceof $sliceSubType)
+                    {
+                        $type = $configuration->callbacks()->mostSpecificPossibleGoType($configuration, $type, $sliceSubType);
+                        if ($type instanceof InterfaceType)
+                            break;
+                    }
+                }
+            }
         }
         else if ($sliceGoType instanceof InterfaceType)
         {

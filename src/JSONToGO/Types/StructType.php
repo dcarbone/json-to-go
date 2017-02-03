@@ -30,7 +30,7 @@ class StructType extends AbstractType
      */
     public function type()
     {
-        return 'struct';
+        return GOTYPE_STRUCT;
     }
 
     /**

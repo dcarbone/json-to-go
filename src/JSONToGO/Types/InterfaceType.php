@@ -19,7 +19,7 @@ class InterfaceType extends AbstractType
      */
     public function type()
     {
-        return 'interface{}';
+        return GOTYPE_INTERFACE;
     }
 
     /**

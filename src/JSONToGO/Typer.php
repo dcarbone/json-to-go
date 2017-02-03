@@ -8,8 +8,10 @@
  */
 use DCarbone\JSONToGO\Types\AbstractType;
 use DCarbone\JSONToGO\Types\InterfaceType;
+use DCarbone\JSONToGO\Types\MapType;
 use DCarbone\JSONToGO\Types\SimpleType;
 use DCarbone\JSONToGO\Types\SliceType;
+use DCarbone\JSONToGO\Types\StructType;
 
 /**
  * Class NameUtils
@@ -99,8 +101,41 @@ abstract class Typer
      */
     public static function mostSpecificPossibleComplexGoType(Configuration $configuration, AbstractType $type1, AbstractType $type2)
     {
-        if ($type1 instanceof $type2 && !($type1 instanceof SliceType))
-            return $type1;
+        if ($type1 instanceof $type2)
+        {
+            if ($type1 instanceof SliceType)
+            {
+                $compType = $configuration->callbacks()->mostSpecificPossibleGoType($configuration, $type1->sliceType(), $type2->sliceType());
+                if (!($compType instanceof InterfaceType))
+                    return $type1;
+            }
+            else if ($type1 instanceof MapType)
+            {
+                $compType = $configuration->callbacks()->mostSpecificPossibleGoType($configuration, $type1->mapType(), $type2->mapType());
+                if (!($compType instanceof InterfaceType))
+                    return $type1;
+            }
+            else if ($type1 instanceof StructType)
+            {
+                $parent = $type1->parent();
+                if (null === $parent || !($parent instanceof SliceType))
+                    return $type1;
+
+                $k1 = array_keys(get_object_vars($type1->example()));
+                $k2 = array_keys(get_object_vars($type2->example()));
+
+                sort($k1);
+                sort($k2);
+
+                $diff = array_diff($k1, $k2);
+                if (0 === count($diff))
+                    return $type1;
+            }
+            else
+            {
+                return $type1;
+            }
+        }
 
         return new InterfaceType($configuration, $type1->name(), $type1->example());
     }
