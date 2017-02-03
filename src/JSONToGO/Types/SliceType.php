@@ -8,7 +8,15 @@
 class SliceType extends AbstractType
 {
     /** @var \DCarbone\JSONToGO\Types\AbstractType */
-    protected $sliceType;
+    protected $sliceType = null;
+
+    /**
+     * @return array
+     */
+    public function __debugInfo()
+    {
+        return parent::__debugInfo() + ['sliceType' => $this->sliceType];
+    }
 
     /**
      * @return string

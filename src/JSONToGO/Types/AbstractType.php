@@ -22,7 +22,7 @@ abstract class AbstractType
     /** @var string */
     protected $name;
     /** @var mixed */
-    protected $definition;
+    protected $example;
 
     /** @var bool */
     protected $alwaysDefined = true;
@@ -35,13 +35,13 @@ abstract class AbstractType
      *
      * @param \DCarbone\JSONToGO\Configuration $configuration
      * @param string $name
-     * @param mixed $definition
+     * @param mixed $example
      */
-    public function __construct(Configuration $configuration, $name, $definition)
+    public function __construct(Configuration $configuration, $name, $example)
     {
         $this->configuration = $configuration;
         $this->name = $name;
-        $this->definition = $definition;
+        $this->example = $example;
     }
 
     /**
@@ -51,8 +51,8 @@ abstract class AbstractType
     {
         return [
             'name' => $this->name,
-            'parent' => $this->parent,
             'alwaysDefined' => $this->alwaysDefined,
+            'example' => $this->example,
         ];
     }
 
@@ -103,9 +103,9 @@ abstract class AbstractType
     /**
      * @return mixed
      */
-    public function definition()
+    public function example()
     {
-        return $this->definition;
+        return $this->example;
     }
 
     /**
@@ -146,7 +146,7 @@ abstract class AbstractType
         }
 
         throw new \InvalidArgumentException(sprintf(
-            'JSONToGO: Cannot assign type "%s" to parent of "%s".  Only Slice and Struct types may be parents.',
+            'JSONToGO: Cannot assign type "%s" to parent of "%s".  Only Slice, Map, and Struct types may be parents.',
             is_object($parent) ? get_class($parent) : gettype($parent),
             $this->name()
         ));

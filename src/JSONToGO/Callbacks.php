@@ -7,6 +7,8 @@
  * of the MIT license.  See the LICENSE file for details.
  */
 
+use DCarbone\JSONToGO\Types\AbstractType;
+
 /**
  * Class Callbacks
  *
@@ -16,6 +18,8 @@ class Callbacks
 {
     /** @var callable */
     private $formatPropertyName = ['\\DCarbone\\JSONToGO\\Namer', 'formatPropertyName'];
+    /** @var callable */
+    private $handleSpecialCharacters = ['\\DCarbone\\JSONToGO\\Namer', 'handleSpecialCharacters'];
     /** @var callable */
     private $toProperCase = ['\\DCarbone\\JSONToGO\\Namer', 'toProperCase'];
     /** @var callable */
@@ -52,6 +56,16 @@ class Callbacks
      * @param string $string
      * @return string
      */
+    public function handleSpecialCharacters(Configuration $configuration, $string)
+    {
+        return call_user_func($this->handleSpecialCharacters, $configuration, $string);
+    }
+
+    /**
+     * @param \DCarbone\JSONToGO\Configuration $configuration
+     * @param string $string
+     * @return string
+     */
     public function toProperCase(Configuration $configuration, $string)
     {
         return call_user_func($this->toProperCase, $configuration, $string);
@@ -71,15 +85,13 @@ class Callbacks
 
     /**
      * @param \DCarbone\JSONToGO\Configuration $configuration
-     * @param string $type1
-     * @param mixed $type1Example
-     * @param string $type2
-     * @param mixed $type2Example
-     * @return string
+     * @param \DCarbone\JSONToGO\Types\AbstractType $type1
+     * @param \DCarbone\JSONToGO\Types\AbstractType $type2
+     * @return AbstractType
      */
-    public function mostSpecificPossibleGoType(Configuration $configuration, $type1, $type1Example, $type2, $type2Example)
+    public function mostSpecificPossibleGoType(Configuration $configuration, AbstractType $type1, AbstractType $type2)
     {
-        return call_user_func($this->mostSpecificPossibleGoType, $configuration, $type1, $type1Example, $type2, $type2Example);
+        return call_user_func($this->mostSpecificPossibleGoType, $configuration, $type1, $type2);
     }
 
     /**

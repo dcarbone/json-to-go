@@ -6,7 +6,7 @@ PHP Implementation of mholt/json-to-go
 ```json
 {
     "require": {
-        "dcarbone/json-to-go": "0.5.*"
+        "dcarbone/json-to-go": "@stable"
     }
 }
 ```
@@ -169,15 +169,14 @@ And executing the following:
 Will result in (pre `go fmt`):
 
 ```go
+type RootTypeNameWebAppServletSlice []*RootTypeNameWebAppServlet
 
-type RootTypeNameWebappServletSlice []*RootTypeNameWebappServlet
-
-type RootTypeNameWebappServletInitparam struct {
-	ConfigGlossaryinstallationAt string `json:"configGlossary:installationAt"`
-	ConfigGlossaryadminEmail string `json:"configGlossary:adminEmail"`
-	ConfigGlossarypoweredBy string `json:"configGlossary:poweredBy"`
-	ConfigGlossarypoweredByIcon string `json:"configGlossary:poweredByIcon"`
-	ConfigGlossarystaticPath string `json:"configGlossary:staticPath"`
+type RootTypeNameWebAppServletInitParam struct {
+	ConfigGlossaryInstallationAt string `json:"configGlossary:installationAt"`
+	ConfigGlossaryAdminEmail string `json:"configGlossary:adminEmail"`
+	ConfigGlossaryPoweredBy string `json:"configGlossary:poweredBy"`
+	ConfigGlossaryPoweredByIcon string `json:"configGlossary:poweredByIcon"`
+	ConfigGlossaryStaticPath string `json:"configGlossary:staticPath"`
 	TemplateProcessorClass string `json:"templateProcessorClass"`
 	TemplateLoaderClass string `json:"templateLoaderClass"`
 	TemplatePath string `json:"templatePath"`
@@ -217,13 +216,13 @@ type RootTypeNameWebappServletInitparam struct {
 	MaxURLLength int `json:"maxUrlLength"`
 }
 
-type RootTypeNameWebappServlet struct {
-	Servletname string `json:"servlet-name"`
-	Servletclass string `json:"servlet-class"`
-	Initparam *RootTypeNameWebappServletInitparam `json:"init-param,omitempty"`
+type RootTypeNameWebAppServlet struct {
+	ServletName string `json:"servlet-name"`
+	ServletClass string `json:"servlet-class"`
+	InitParam *RootTypeNameWebAppServletInitParam `json:"init-param,omitempty"`
 }
 
-type RootTypeNameWebappServletmapping struct {
+type RootTypeNameWebAppServletMapping struct {
 	CofaxCDS string `json:"cofaxCDS"`
 	CofaxEmail string `json:"cofaxEmail"`
 	CofaxAdmin string `json:"cofaxAdmin"`
@@ -231,19 +230,19 @@ type RootTypeNameWebappServletmapping struct {
 	CofaxTools string `json:"cofaxTools"`
 }
 
-type RootTypeNameWebappTaglib struct {
-	Tagliburi string `json:"taglib-uri"`
-	Tagliblocation string `json:"taglib-location"`
+type RootTypeNameWebAppTaglib struct {
+	TaglibURI string `json:"taglib-uri"`
+	TaglibLocation string `json:"taglib-location"`
 }
 
-type RootTypeNameWebapp struct {
-	Servlet RootTypeNameWebappServletSlice `json:"servlet"`
-	Servletmapping *RootTypeNameWebappServletmapping `json:"servlet-mapping"`
-	Taglib *RootTypeNameWebappTaglib `json:"taglib"`
+type RootTypeNameWebApp struct {
+	Servlet RootTypeNameWebAppServletSlice `json:"servlet"`
+	ServletMapping *RootTypeNameWebAppServletMapping `json:"servlet-mapping"`
+	Taglib *RootTypeNameWebAppTaglib `json:"taglib"`
 }
 
 type RootTypeName struct {
-	Webapp *RootTypeNameWebapp `json:"web-app"`
+	WebApp *RootTypeNameWebApp `json:"web-app"`
 }
 
 ```

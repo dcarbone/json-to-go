@@ -16,4 +16,5 @@ const GOTYPE_STRING = 'string';
 const GOTYPE_BOOLEAN = 'bool';
 const GOTYPE_SLICE = 'slice';
 const GOTYPE_STRUCT = 'struct';
+const GOTYPE_MAP = 'map';
 const GOTYPE_INTERFACE = 'interface{}';

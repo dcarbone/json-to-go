@@ -24,12 +24,12 @@ class SimpleType extends AbstractType
      *
      * @param \DCarbone\JSONToGO\Configuration $configuration
      * @param string $name
-     * @param int|float|bool|string $definition
+     * @param int|float|bool|string $example
      * @param string $type
      */
-    public function __construct(Configuration $configuration, $name, $definition, $type)
+    public function __construct(Configuration $configuration, $name, $example, $type)
     {
-        parent::__construct($configuration, $name, $definition);
+        parent::__construct($configuration, $name, $example);
         $this->type = $type;
     }
 

@@ -32,22 +32,22 @@ abstract class Parser
         $goType = $configuration->callbacks()->goType($configuration, $typeName, $typeExample, $parent);
         switch($goType)
         {
-            case 'struct':
+            case GOTYPE_STRUCT:
                 if ($configuration->emptyStructToInterface() && 0 === count(get_object_vars($typeExample)))
                     $type = new InterfaceType($configuration, $typeName, $typeExample);
                 else
                     $type = static::parseStructType($configuration, $typeName, $typeExample, $parent);
                 break;
 
-            case 'map':
+            case GOTYPE_MAP:
                 $type = static::parseMapType($configuration, $typeName, $typeExample, $parent);
                 break;
 
-            case 'slice':
+            case GOTYPE_SLICE:
                 $type = static::parseSliceType($configuration, $typeName, $typeExample, $parent);
                 break;
 
-            case 'interface{}':
+            case GOTYPE_INTERFACE:
                 $type = new InterfaceType($configuration, $typeName, $typeExample);
                 break;
 
@@ -138,30 +138,29 @@ abstract class Parser
         $sliceType = new SliceType($configuration, $typeName, $typeExample, $parent);
 
         $sliceGoType = null;
-        $sliceGoTypeExample = null;
         $sliceLength = count($typeExample);
 
         foreach($typeExample as $item)
         {
-            $thisType = $configuration->callbacks()->goType($configuration, $typeName, $item, $sliceType);
+            $thisType = static::parseType($configuration, $typeName, $item, $sliceType);
 
             if (null === $sliceGoType)
             {
                 $sliceGoType = $thisType;
-                $sliceGoTypeExample = $item;
             }
-            else if ($sliceGoType !== $thisType)
+            else
             {
                 $sliceGoType = $configuration
                     ->callbacks()
-                    ->mostSpecificPossibleGoType($configuration, $thisType, $item, $sliceGoType, $sliceGoTypeExample);
+                    ->mostSpecificPossibleGoType($configuration, $thisType, $sliceGoType);
 
-                if ('interface{}' === $sliceGoType)
+
+                if ($sliceGoType instanceof InterfaceType)
                     break;
             }
         }
 
-        if ('struct' === $sliceGoType || 'map' === $sliceGoType)
+        if ($sliceGoType instanceof StructType || $sliceGoType instanceof MapType)
         {
             $allFields = [];
 
@@ -181,7 +180,7 @@ abstract class Parser
                 }
             }
 
-            if ('struct' === $sliceGoType && $configuration->emptyStructToInterface() && 0 === count($allFields))
+            if ($sliceGoType instanceof StructType && $configuration->emptyStructToInterface() && 0 === count($allFields))
             {
                 $type = new InterfaceType($configuration, $typeName, $typeExample);
             }
@@ -196,7 +195,7 @@ abstract class Parser
                     $omitempty[$key] = $allFields[$key]['count'] !== $sliceLength;
                 }
 
-                if ('struct' === $sliceGoType)
+                if ($sliceGoType instanceof StructType)
                 {
                     $type = static::parseStructType($configuration, $typeName, $childTypeExample, $sliceType);
                     foreach($type->children() as $child)
@@ -211,18 +210,48 @@ abstract class Parser
                 }
             }
         }
-        else if ('slice' === $sliceGoType)
+        else if ($sliceGoType instanceof SliceType)
         {
-            $type = static::parseType($configuration, $typeName, reset($typeExample), $sliceType);
+//            if (2 > count($typeExample))
+//            {
+                // if there is no example or only one example, no further parsing is needed
+                $type = static::parseType($configuration, $typeName, reset($typeExample), $sliceType);
+//            }
+//            else
+//            {
+//                // if we have more than one child of this slice, loop through and ensure that all child
+//                $sliceSubTypeList = [];
+//
+//                foreach($typeExample as $i => $subType)
+//                {
+//                    $sliceSubTypeList[] = static::parseType($configuration, $typeName, $subType, $sliceType);
+//                }
+//
+//
+//                $thisType = null;
+//                foreach($sliceSubTypeList as $sliceSubType)
+//                {
+//                    if (null === $thisType)
+//                    {
+//                        $thisType = $sliceSubType;
+//                    }
+//                    else if ($thisType instanceof $sliceSubType)
+//                    {
+////                        if ($thisType instanceof SliceType)
+//                    }
+//                }
+//
+//                var_dump($sliceSubTypeList);exit;
+//            }
         }
-        else if ('interface{}' === $sliceGoType)
+        else if ($sliceGoType instanceof InterfaceType)
         {
             $type = new InterfaceType($configuration, $typeName, $typeExample);
         }
         else
         {
             if ($sliceGoType)
-                $type = new SimpleType($configuration, $typeName, $typeExample, $sliceGoType);
+                $type = new SimpleType($configuration, $typeName, $typeExample, $sliceGoType->type());
             else
                 $type = new InterfaceType($configuration, $typeName, $typeExample);
         }

@@ -6,6 +6,10 @@
  * This software may be modified and distributed under the terms
  * of the MIT license.  See the LICENSE file for details.
  */
+use DCarbone\JSONToGO\Types\AbstractType;
+use DCarbone\JSONToGO\Types\InterfaceType;
+use DCarbone\JSONToGO\Types\SimpleType;
+use DCarbone\JSONToGO\Types\SliceType;
 
 /**
  * Class NameUtils
@@ -58,76 +62,60 @@ abstract class Typer
     }
 
     /**
-     * @param string $type
+     * @param AbstractType $type
      * @return bool
      */
-    public static function isSimpleGoType($type)
+    public static function isSimpleGoType(AbstractType $type)
     {
-        switch($type)
-        {
-            case GOTYPE_INT:
-            case GOTYPE_INT32:
-            case GOTYPE_INT64:
-            case GOTYPE_FLOAT32:
-            case GOTYPE_FLOAT64:
-            case GOTYPE_STRING:
-            case GOTYPE_BOOLEAN:
-                return true;
-        }
-
-        return false;
+        return $type instanceof SimpleType;
     }
 
+
     /**
-     * @param string $type1
-     * @param mixed $type1Example
-     * @param string $type2
-     * @param mixed $type2Example
-     * @return string
+     * @param \DCarbone\JSONToGO\Configuration $configuration
+     * @param \DCarbone\JSONToGO\Types\AbstractType $type1
+     * @param \DCarbone\JSONToGO\Types\AbstractType $type2
+     * @return \DCarbone\JSONToGO\Types\AbstractType
      */
-    public static function mostSpecificPossibleSimpleGoType($type1, $type1Example, $type2, $type2Example)
+    public static function mostSpecificPossibleSimpleGoType(Configuration $configuration, AbstractType $type1, AbstractType $type2)
     {
-        if ($type1 === $type2)
+        if ($type1 instanceof $type2)
             return $type1;
 
-        if ('float' === substr($type1, 0, 5) && 'int' === substr($type2, 0, 3))
+        if ('float' === substr($type1->type(), 0, 5) && 'int' === substr($type2->type(), 0, 3))
             return $type1;
 
-        if ('int' === substr($type1, 0, 3) && 'float' === substr($type2, 0, 5))
+        if ('int' === substr($type1->type(), 0, 3) && 'float' === substr($type2->type(), 0, 5))
             return $type1;
 
-        return 'interface{}';
+        return new InterfaceType($configuration, $type1->name(), $type1->example());
     }
 
     /**
      * @param \DCarbone\JSONToGO\Configuration $configuration
-     * @param string $type1
-     * @param mixed $type1Example
-     * @param string $type2
-     * @param mixed $type2Example
-     * @return string
+     * @param \DCarbone\JSONToGO\Types\AbstractType $type1
+     * @param \DCarbone\JSONToGO\Types\AbstractType $type2
+     * @return \DCarbone\JSONToGO\Types\AbstractType
      */
-    public static function mostSpecificPossibleComplexGoType(Configuration $configuration, $type1, $type1Example, $type2, $type2Example)
+    public static function mostSpecificPossibleComplexGoType(Configuration $configuration, AbstractType $type1, AbstractType $type2)
     {
-        if ($type1 === $type2)
+        if ($type1 instanceof $type2 && !($type1 instanceof SliceType))
             return $type1;
 
-        return 'interface{}';
+        return new InterfaceType($configuration, $type1->name(), $type1->example());
     }
 
     /**
      * @param \DCarbone\JSONToGO\Configuration $configuration
-     * @param string $type1
-     * @param mixed $type1Example
-     * @param string $type2
-     * @param mixed $type2Example
-     * @return string
+     * @param \DCarbone\JSONToGO\Types\AbstractType $type1
+     * @param \DCarbone\JSONToGO\Types\AbstractType $type2
+     * @return \DCarbone\JSONToGO\Types\AbstractType
      */
-    public static function mostSpecificPossibleGoType(Configuration $configuration, $type1, $type1Example, $type2, $type2Example)
+    public static function mostSpecificPossibleGoType(Configuration $configuration, AbstractType $type1, AbstractType $type2)
     {
         if (static::isSimpleGoType($type1) && static::isSimpleGoType($type2))
-            return static::mostSpecificPossibleSimpleGoType($type1, $type1Example, $type2, $type2Example);
+            return static::mostSpecificPossibleSimpleGoType($configuration, $type1, $type2);
 
-        return static::mostSpecificPossibleComplexGoType($configuration, $type1, $type1Example, $type2, $type2Example);
+        return static::mostSpecificPossibleComplexGoType($configuration, $type1, $type2);
     }
 }

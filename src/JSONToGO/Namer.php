@@ -35,12 +35,15 @@ abstract class Namer
             $propertyName = $configuration->numberToWord(substr($propertyName, 0, 1)) . substr($propertyName, 1);
         }
 
-        // Case it
-        $propertyName = $configuration->callbacks()->toProperCase($configuration, $propertyName);
-
-        // Then, if this starts with anything other than an alpha character prefix with X
+        // If this starts with anything other than an alpha character prefix with X
         if (preg_match('/^[^a-zA-Z]/S', $propertyName))
             $propertyName = sprintf('X%s', $propertyName);
+
+        // Do stuff with non-alphanumeric characters
+        $propertyName = $configuration->callbacks()->handleSpecialCharacters($configuration, $propertyName);
+
+        // Case it and remove non-alpha characters
+        $propertyName = $configuration->callbacks()->toProperCase($configuration, $propertyName);
 
         // Finally, strip out everything that was not caught above and is not an alphanumeric character.
         return preg_replace('/[^a-zA-Z0-9]/S', '', $propertyName);
@@ -51,22 +54,35 @@ abstract class Namer
      * @param string $string
      * @return string
      */
+    public static function handleSpecialCharacters(Configuration $configuration, $string)
+    {
+        $ci = $configuration->commonInitialisms();
+
+        return preg_replace_callback('/(^|[^a-zA-Z])([a-z]+)/S', function($item) use ($ci) {
+            list($full, $symbol, $string) = $item;
+            $upper = strtoupper($string);
+
+            if (in_array($upper, $ci, true))
+                return $upper;
+            return ucfirst(strtolower($string));
+        }, $string);
+    }
+
+    /**
+     * @param \DCarbone\JSONToGO\Configuration $configuration
+     * @param string $string
+     * @return string
+     */
     public static function toProperCase(Configuration $configuration, $string)
     {
-        $commonInitialisms = $configuration->commonInitialisms();
+        $ci = $configuration->commonInitialisms();
 
-        return preg_replace_callback('/([A-Z])([a-z]+)/S', function($item) use ($commonInitialisms) {
-            $item = reset($item);
-            $upper = strtoupper($item);
-            if (in_array($upper, $commonInitialisms, true))
+        return preg_replace_callback('/([A-Z])([a-z]+)/S', function($item) use ($ci) {
+            list($full, $firstLetter, $rest) = $item;
+            $upper = strtoupper($full);
+            if (in_array($upper, $ci, true))
                 return $upper;
-            return $item;
-        }, preg_replace_callback('/(^|[^a-zA-Z])([a-z]+)/S', function($item) use ($commonInitialisms) {
-            $item = reset($item);
-            $upper = strtoupper($item);
-            if (in_array($upper, $commonInitialisms, true))
-                return $upper;
-            return ucfirst(strtolower($item));
-        }, $string));
+            return $full;
+        }, $string);
     }
 }
