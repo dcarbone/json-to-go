@@ -8,6 +8,7 @@
  */
 
 use DCarbone\JSONToGO\Types\AbstractType;
+use DCarbone\JSONToGO\Types\StructType;
 
 /**
  * Class Callbacks
@@ -26,6 +27,8 @@ class Callbacks
     private $goType = ['\\DCarbone\\JSONToGO\\Typer', 'goType'];
     /** @var callable */
     private $mostSpecificPossibleGoType = ['\\DCarbone\\JSONToGO\\Typer', 'mostSpecificPossibleGoType'];
+    /** @var callable */
+    private $buildStructFieldTag = ['\\DCarbone\\JSONToGO\\Helpers', 'buildStructFieldTag'];
 
     /**
      * Callbacks constructor.
@@ -95,12 +98,33 @@ class Callbacks
     }
 
     /**
+     * @param \DCarbone\JSONToGO\Configuration $configuration
+     * @param \DCarbone\JSONToGO\Types\StructType $parentStruct
+     * @param \DCarbone\JSONToGO\Types\AbstractType $field
+     * @return string
+     */
+    public function buildStructFieldTag(Configuration $configuration, StructType $parentStruct, AbstractType $field)
+    {
+        return call_user_func($this->buildStructFieldTag, $configuration, $parentStruct, $field);
+    }
+
+    /**
      * @param callable $callable
      * @return Callbacks
      */
     public function setFormatPropertyNameCallback($callable)
     {
         $this->formatPropertyName = $callable;
+        return $this;
+    }
+
+    /**
+     * @param callable $callable
+     * @return Callbacks
+     */
+    public function setHandleSpecialCharactersCallback($callable)
+    {
+        $this->handleSpecialCharacters = $callable;
         return $this;
     }
 
@@ -131,6 +155,16 @@ class Callbacks
     public function setMostSpecificPossibleGoTypeCallback($mostSpecificPossibleGoType)
     {
         $this->mostSpecificPossibleGoType = $mostSpecificPossibleGoType;
+        return $this;
+    }
+
+    /**
+     * @param callable $buildStructFieldTag
+     * @return Callbacks
+     */
+    public function setBuildStructFieldTag($buildStructFieldTag)
+    {
+        $this->buildStructFieldTag = $buildStructFieldTag;
         return $this;
     }
 }

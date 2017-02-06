@@ -88,6 +88,12 @@ class StructType extends AbstractType
                 $child->goName()
             );
 
+            $fieldTag = $this->configuration->callbacks()->buildStructFieldTag($this->configuration, $this, $child);
+
+            $fieldTag = trim($fieldTag, " \t\n\r\0\x0B`");
+            if ('' !== $fieldTag)
+                $fieldTag = sprintf(' `%s`', $fieldTag);
+
             if ($breakOutInlineStructs && !($child instanceof SimpleType || $child instanceof InterfaceType))
             {
                 // Add the child struct to the output list...
@@ -96,42 +102,38 @@ class StructType extends AbstractType
                 if ($child instanceof StructType)
                 {
                     $go = sprintf(
-                        '%s *%s `json:"%s%s"`',
+                        '%s *%s%s',
                         $go,
                         $child->goTypeName(),
-                        $child->name(),
-                        $child->isAlwaysDefined() ? '' : ',omitempty'
+                        $fieldTag
                     );
                 }
                 else if ($child instanceof SliceType)
                 {
                     $go = sprintf(
-                        '%s %s `json:"%s%s"`',
+                        '%s %s%s',
                         $go,
                         $child->goTypeSliceName(),
-                        $child->name(),
-                        $child->isAlwaysDefined() ? '' : ',omitempty'
+                        $fieldTag
                     );
                 }
                 else if ($child instanceof MapType)
                 {
                     $go = sprintf(
-                        '%s %s `json:"%s%s"`',
+                        '%s %s%s',
                         $go,
                         $child->goTypeMapName(),
-                        $child->name(),
-                        $child->isAlwaysDefined() ? '' : ',omitempty'
+                        $fieldTag
                     );
                 }
             }
             else
             {
                 $go = sprintf(
-                    '%s %s `json:"%s%s"`',
+                    '%s %s%s',
                     $go,
                     $child->toGO($indentLevel + 2),
-                    $child->name(),
-                    $child->isAlwaysDefined() ? '' : ',omitempty'
+                    $fieldTag
                 );
             }
 
