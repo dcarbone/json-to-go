@@ -19,11 +19,11 @@ abstract class Helpers
 {
     /**
      * @param \DCarbone\JSONToGO\Configuration $configuration
-     * @param \DCarbone\JSONToGO\Types\StructType $parentStruct
+     * @param \DCarbone\JSONToGO\Types\StructType $struct
      * @param \DCarbone\JSONToGO\Types\AbstractType $field
      * @return string
      */
-    public static function buildStructFieldTag(Configuration $configuration, StructType $parentStruct, AbstractType $field)
+    public static function buildStructFieldTag(Configuration $configuration, StructType $struct, AbstractType $field)
     {
         $tag = sprintf('json:"%s', $field->name());
 
@@ -31,5 +31,16 @@ abstract class Helpers
             $tag = sprintf('%s,omitempty', $tag);
 
         return sprintf('%s"', $tag);
+    }
+
+    /**
+     * @param \DCarbone\JSONToGO\Configuration $configuration
+     * @param \DCarbone\JSONToGO\Types\StructType $struct
+     * @param \DCarbone\JSONToGO\Types\AbstractType $field
+     * @return bool
+     */
+    public static function isFieldExposed(Configuration $configuration, StructType $struct, AbstractType $field)
+    {
+        return true;
     }
 }

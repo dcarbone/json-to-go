@@ -29,6 +29,8 @@ class Callbacks
     private $mostSpecificPossibleGoType = ['\\DCarbone\\JSONToGO\\Typer', 'mostSpecificPossibleGoType'];
     /** @var callable */
     private $buildStructFieldTag = ['\\DCarbone\\JSONToGO\\Helpers', 'buildStructFieldTag'];
+    /** @var callable */
+    private $isFieldExposed = ['\\DCarbone\\JSONToGO\\Helpers', 'isFieldExposed'];
 
     /**
      * Callbacks constructor.
@@ -99,13 +101,24 @@ class Callbacks
 
     /**
      * @param \DCarbone\JSONToGO\Configuration $configuration
-     * @param \DCarbone\JSONToGO\Types\StructType $parentStruct
+     * @param \DCarbone\JSONToGO\Types\StructType $struct
      * @param \DCarbone\JSONToGO\Types\AbstractType $field
      * @return string
      */
-    public function buildStructFieldTag(Configuration $configuration, StructType $parentStruct, AbstractType $field)
+    public function buildStructFieldTag(Configuration $configuration, StructType $struct, AbstractType $field)
     {
-        return call_user_func($this->buildStructFieldTag, $configuration, $parentStruct, $field);
+        return call_user_func($this->buildStructFieldTag, $configuration, $struct, $field);
+    }
+
+    /**
+     * @param \DCarbone\JSONToGO\Configuration $configuration
+     * @param \DCarbone\JSONToGO\Types\StructType $struct
+     * @param \DCarbone\JSONToGO\Types\AbstractType $field
+     * @return bool
+     */
+    public function isFieldExposed(Configuration $configuration, StructType $struct, AbstractType $field)
+    {
+        return (bool)call_user_func($this->isFieldExposed, $configuration, $struct, $field);
     }
 
     /**
@@ -162,9 +175,19 @@ class Callbacks
      * @param callable $buildStructFieldTag
      * @return Callbacks
      */
-    public function setBuildStructFieldTag($buildStructFieldTag)
+    public function setBuildStructFieldTagCallback($buildStructFieldTag)
     {
         $this->buildStructFieldTag = $buildStructFieldTag;
+        return $this;
+    }
+
+    /**
+     * @param callable $isFieldExposed
+     * @return Callbacks
+     */
+    public function setIsFieldExposedCallback($isFieldExposed)
+    {
+        $this->isFieldExposed = $isFieldExposed;
         return $this;
     }
 }

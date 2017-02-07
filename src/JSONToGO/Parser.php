@@ -198,10 +198,10 @@ abstract class Parser
                 if ($sliceGoType instanceof StructType)
                 {
                     $type = static::parseStructType($configuration, $typeName, $childTypeExample, $sliceType);
-                    foreach($type->children() as $child)
+                    foreach($type->fields() as $field)
                     {
-                        if ($omitempty[$child->name()])
-                            $child->notAlwaysDefined();
+                        if ($omitempty[$field->name()])
+                            $field->notAlwaysDefined();
                     }
                 }
                 else

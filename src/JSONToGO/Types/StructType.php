@@ -15,14 +15,14 @@
 class StructType extends AbstractType
 {
     /** @var \DCarbone\JSONToGO\Types\StructType[] */
-    protected $children = [];
+    protected $fields = [];
 
     /**
      * @return array
      */
     public function __debugInfo()
     {
-        return parent::__debugInfo() + ['children' => $this->children];
+        return parent::__debugInfo() + ['fields' => $this->fields];
     }
 
     /**
@@ -36,9 +36,9 @@ class StructType extends AbstractType
     /**
      * @return \DCarbone\JSONToGO\Types\StructType[]
      */
-    public function children()
+    public function fields()
     {
-        return $this->children;
+        return $this->fields;
     }
 
     /**
@@ -48,7 +48,7 @@ class StructType extends AbstractType
     public function addChild(AbstractType $child)
     {
         $child->setParent($this);
-        $this->children[$child->name()] = $child;
+        $this->fields[$child->name()] = $child;
         return $this;
     }
 
@@ -79,50 +79,53 @@ class StructType extends AbstractType
             );
         }
 
-        foreach($this->children() as $child)
+        foreach($this->fields() as $field)
         {
+            if (false === $this->configuration->callbacks()->isFieldExposed($this->configuration, $this, $field))
+                continue;
+
             $go = sprintf(
                 '%s%s%s',
                 $go,
                 static::indents($indentLevel + 1),
-                $child->goName()
+                $field->goName()
             );
 
-            $fieldTag = $this->configuration->callbacks()->buildStructFieldTag($this->configuration, $this, $child);
+            $fieldTag = $this->configuration->callbacks()->buildStructFieldTag($this->configuration, $this, $field);
 
             $fieldTag = trim($fieldTag, " \t\n\r\0\x0B`");
             if ('' !== $fieldTag)
                 $fieldTag = sprintf(' `%s`', $fieldTag);
 
-            if ($breakOutInlineStructs && !($child instanceof SimpleType || $child instanceof InterfaceType))
+            if ($breakOutInlineStructs && !($field instanceof SimpleType || $field instanceof InterfaceType))
             {
                 // Add the child struct to the output list...
-                $output[] = $child->toGO();
+                $output[] = $field->toGO();
 
-                if ($child instanceof StructType)
+                if ($field instanceof StructType)
                 {
                     $go = sprintf(
                         '%s *%s%s',
                         $go,
-                        $child->goTypeName(),
+                        $field->goTypeName(),
                         $fieldTag
                     );
                 }
-                else if ($child instanceof SliceType)
+                else if ($field instanceof SliceType)
                 {
                     $go = sprintf(
                         '%s %s%s',
                         $go,
-                        $child->goTypeSliceName(),
+                        $field->goTypeSliceName(),
                         $fieldTag
                     );
                 }
-                else if ($child instanceof MapType)
+                else if ($field instanceof MapType)
                 {
                     $go = sprintf(
                         '%s %s%s',
                         $go,
-                        $child->goTypeMapName(),
+                        $field->goTypeMapName(),
                         $fieldTag
                     );
                 }
@@ -132,7 +135,7 @@ class StructType extends AbstractType
                 $go = sprintf(
                     '%s %s%s',
                     $go,
-                    $child->toGO($indentLevel + 2),
+                    $field->toGO($indentLevel + 2),
                     $fieldTag
                 );
             }
