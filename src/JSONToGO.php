@@ -109,42 +109,8 @@ class JSONToGO
             throw new \RuntimeException(get_class($this).'::generate - Unable to json_decode input: '.json_last_error_msg());
 
         if ($this->configuration->sanitizeInput())
-            $decoded = self::sanitizeInput($decoded);
+            $decoded = $this->configuration->callbacks()->sanitizeInput($this->configuration, $decoded);
 
         return Parser::parseType($this->configuration, $typeName, $decoded);
-    }
-
-    /**
-     * @param mixed $typeExample
-     * @return mixed
-     */
-    protected static function sanitizeInput($typeExample)
-    {
-        switch(gettype($typeExample))
-        {
-            case 'string': return 'string';
-            case 'double': return 1.0;
-            case 'integer': return 1;
-            case 'boolean': return true;
-
-            case 'array':
-                $tmp = $typeExample;
-                foreach($tmp as $k => &$v)
-                {
-                    $v = self::sanitizeInput($v);
-                }
-                return array_values(array_unique($tmp, SORT_REGULAR));
-
-            case 'object':
-                $tmp = $typeExample;
-                foreach(get_object_vars($tmp) as $k => $v)
-                {
-                    $tmp->{$k} = self::sanitizeInput($v);
-                }
-                return $tmp;
-
-            default:
-                return null;
-        }
     }
 }

@@ -43,4 +43,39 @@ abstract class Helpers
     {
         return true;
     }
+
+    /**
+     * @param \DCarbone\JSONToGO\Configuration $configuration
+     * @param mixed $typeExample
+     * @return mixed
+     */
+    public static function sanitizeInput(Configuration $configuration, $typeExample)
+    {
+        switch(gettype($typeExample))
+        {
+            case 'string': return 'string';
+            case 'double': return 1.0;
+            case 'integer': return 1;
+            case 'boolean': return true;
+
+            case 'array':
+                $tmp = $typeExample;
+                foreach($tmp as $k => &$v)
+                {
+                    $v = $configuration->callbacks()->sanitizeInput($configuration, $v);
+                }
+                return array_values(array_unique($tmp, SORT_REGULAR));
+
+            case 'object':
+                $tmp = $typeExample;
+                foreach(get_object_vars($tmp) as $k => $v)
+                {
+                    $tmp->{$k} = $configuration->callbacks()->sanitizeInput($configuration, $v);
+                }
+                return $tmp;
+
+            default:
+                return null;
+        }
+    }
 }

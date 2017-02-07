@@ -31,6 +31,8 @@ class Callbacks
     private $buildStructFieldTag = ['\\DCarbone\\JSONToGO\\Helpers', 'buildStructFieldTag'];
     /** @var callable */
     private $isFieldExposed = ['\\DCarbone\\JSONToGO\\Helpers', 'isFieldExposed'];
+    /** @var callable */
+    private $sanitizeInput = ['\\DCarbone\\JSONToGO\\Helpers', 'sanitizeInput'];
 
     /**
      * Callbacks constructor.
@@ -122,6 +124,16 @@ class Callbacks
     }
 
     /**
+     * @param \DCarbone\JSONToGO\Configuration $configuration
+     * @param mixed $typeExample
+     * @return mixed
+     */
+    public function sanitizeInput(Configuration $configuration, $typeExample)
+    {
+        return call_user_func($this->sanitizeInput, $configuration, $typeExample);
+    }
+
+    /**
      * @param callable $callable
      * @return Callbacks
      */
@@ -188,6 +200,16 @@ class Callbacks
     public function setIsFieldExposedCallback($isFieldExposed)
     {
         $this->isFieldExposed = $isFieldExposed;
+        return $this;
+    }
+
+    /**
+     * @param callable $sanitizeInput
+     * @return Callbacks
+     */
+    public function setSanitizeInputCallback($sanitizeInput)
+    {
+        $this->sanitizeInput = $sanitizeInput;
         return $this;
     }
 }
