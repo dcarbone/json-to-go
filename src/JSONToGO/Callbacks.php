@@ -30,7 +30,7 @@ class Callbacks
     /** @var callable */
     private $buildStructFieldTag = ['\\DCarbone\\JSONToGO\\Helpers', 'buildStructFieldTag'];
     /** @var callable */
-    private $isFieldExposed = ['\\DCarbone\\JSONToGO\\Helpers', 'isFieldExposed'];
+    private $isFieldExported = ['\\DCarbone\\JSONToGO\\Helpers', 'isFieldExported'];
     /** @var callable */
     private $sanitizeInput = ['\\DCarbone\\JSONToGO\\Helpers', 'sanitizeInput'];
 
@@ -118,9 +118,9 @@ class Callbacks
      * @param \DCarbone\JSONToGO\Types\AbstractType $field
      * @return bool
      */
-    public function isFieldExposed(Configuration $configuration, StructType $struct, AbstractType $field)
+    public function isFieldExported(Configuration $configuration, StructType $struct, AbstractType $field)
     {
-        return (bool)call_user_func($this->isFieldExposed, $configuration, $struct, $field);
+        return (bool)call_user_func($this->isFieldExported, $configuration, $struct, $field);
     }
 
     /**
@@ -194,12 +194,12 @@ class Callbacks
     }
 
     /**
-     * @param callable $isFieldExposed
+     * @param callable $isFieldExported
      * @return Callbacks
      */
-    public function setIsFieldExposedCallback($isFieldExposed)
+    public function setIsFieldExportedCallback($isFieldExported)
     {
-        $this->isFieldExposed = $isFieldExposed;
+        $this->isFieldExported = $isFieldExported;
         return $this;
     }
 

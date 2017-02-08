@@ -39,7 +39,7 @@ abstract class Helpers
      * @param \DCarbone\JSONToGO\Types\AbstractType $field
      * @return bool
      */
-    public static function isFieldExposed(Configuration $configuration, StructType $struct, AbstractType $field)
+    public static function isFieldExported(Configuration $configuration, StructType $struct, AbstractType $field)
     {
         return true;
     }

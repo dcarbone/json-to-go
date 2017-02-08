@@ -81,14 +81,13 @@ class StructType extends AbstractType
 
         foreach($this->fields() as $field)
         {
-            if (false === $this->configuration->callbacks()->isFieldExposed($this->configuration, $this, $field))
-                continue;
+            $exported = $this->configuration->callbacks()->isFieldExported($this->configuration, $this, $field);
 
             $go = sprintf(
                 '%s%s%s',
                 $go,
                 static::indents($indentLevel + 1),
-                $field->goName()
+                $exported ? $field->goName() : lcfirst($field->goName())
             );
 
             $fieldTag = $this->configuration->callbacks()->buildStructFieldTag($this->configuration, $this, $field);
