@@ -83,11 +83,11 @@ class StructType extends AbstractType
         {
             if ($this->configuration->callbacks()->isFieldIgnored($this->configuration, $this, $field))
             {
-                $this->configuration->logger()->info(sprintf('Ignoring field "%s" in struct "%s"', $field->name(), $this->name()));
+                $this->configuration->logger()->info(sprintf('[json-to-go] Ignoring field "%s" in struct "%s"', $field->name(), $this->name()));
                 continue;
             }
 
-            $this->configuration->logger()->debug(sprintf('Writing field "%s" in struct "%s"', $field->name(), $this->name()));
+            $this->configuration->logger()->debug(sprintf('[json-to-go] Writing field "%s" in struct "%s"', $field->name(), $this->name()));
 
             $exported = $this->configuration->callbacks()->isFieldExported($this->configuration, $this, $field);
 
