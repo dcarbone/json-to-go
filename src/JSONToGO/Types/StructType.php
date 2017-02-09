@@ -81,6 +81,14 @@ class StructType extends AbstractType
 
         foreach($this->fields() as $field)
         {
+            if ($this->configuration->callbacks()->isFieldIgnored($this->configuration, $this, $field))
+            {
+                $this->configuration->logger()->info(sprintf('Ignoring field "%s" in struct "%s"', $field->name(), $this->name()));
+                continue;
+            }
+
+            $this->configuration->logger()->debug(sprintf('Writing field "%s" in struct "%s"', $field->name(), $this->name()));
+
             $exported = $this->configuration->callbacks()->isFieldExported($this->configuration, $this, $field);
 
             $go = sprintf(

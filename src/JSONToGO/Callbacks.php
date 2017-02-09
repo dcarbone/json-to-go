@@ -18,6 +18,8 @@ use DCarbone\JSONToGO\Types\StructType;
 class Callbacks
 {
     /** @var callable */
+    private $sanitizeInput = ['\\DCarbone\\JSONToGO\\Helpers', 'sanitizeInput'];
+    /** @var callable */
     private $formatPropertyName = ['\\DCarbone\\JSONToGO\\Namer', 'formatPropertyName'];
     /** @var callable */
     private $handleSpecialCharacters = ['\\DCarbone\\JSONToGO\\Namer', 'handleSpecialCharacters'];
@@ -32,7 +34,7 @@ class Callbacks
     /** @var callable */
     private $isFieldExported = ['\\DCarbone\\JSONToGO\\Helpers', 'isFieldExported'];
     /** @var callable */
-    private $sanitizeInput = ['\\DCarbone\\JSONToGO\\Helpers', 'sanitizeInput'];
+    private $isFieldIgnored = ['\\DCarbone\\JSONToGO\\Helpers', 'isFieldIgnored'];
 
     /**
      * Callbacks constructor.
@@ -46,6 +48,16 @@ class Callbacks
             if (isset($this->$k))
                 $this->$k = $callable;
         }
+    }
+
+    /**
+     * @param \DCarbone\JSONToGO\Configuration $configuration
+     * @param mixed $typeExample
+     * @return mixed
+     */
+    public function sanitizeInput(Configuration $configuration, $typeExample)
+    {
+        return call_user_func($this->sanitizeInput, $configuration, $typeExample);
     }
 
     /**
@@ -125,12 +137,23 @@ class Callbacks
 
     /**
      * @param \DCarbone\JSONToGO\Configuration $configuration
-     * @param mixed $typeExample
-     * @return mixed
+     * @param \DCarbone\JSONToGO\Types\StructType $struct
+     * @param \DCarbone\JSONToGO\Types\AbstractType $field
+     * @return bool
      */
-    public function sanitizeInput(Configuration $configuration, $typeExample)
+    public function isFieldIgnored(Configuration $configuration, StructType $struct, AbstractType $field)
     {
-        return call_user_func($this->sanitizeInput, $configuration, $typeExample);
+        return (bool)call_user_func($this->isFieldIgnored, $configuration, $struct, $field);
+    }
+
+    /**
+     * @param callable $sanitizeInput
+     * @return Callbacks
+     */
+    public function setSanitizeInputCallback($sanitizeInput)
+    {
+        $this->sanitizeInput = $sanitizeInput;
+        return $this;
     }
 
     /**
@@ -204,12 +227,12 @@ class Callbacks
     }
 
     /**
-     * @param callable $sanitizeInput
+     * @param callable $isFieldIgnored
      * @return Callbacks
      */
-    public function setSanitizeInputCallback($sanitizeInput)
+    public function setIsFieldIgnoredCallback($isFieldIgnored)
     {
-        $this->sanitizeInput = $sanitizeInput;
+        $this->isFieldIgnored = $isFieldIgnored;
         return $this;
     }
 }

@@ -7,13 +7,20 @@
  * of the MIT license.  See the LICENSE file for details.
  */
 
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
+
 /**
  * Class Configuration
  *
  * @package DCarbone\JSONToGO
  */
-class Configuration
+class Configuration implements LoggerAwareInterface
 {
+    use LoggerAwareTrait;
+
     /** @var array */
     protected static $defaultConfigurationValues = [
         'forceOmitEmpty' => false,
@@ -101,41 +108,19 @@ class Configuration
     /**
      * Configuration constructor.
      *
-     * @internal
+     * @param array $config
+     * @param \Psr\Log\LoggerInterface $logger
      */
-    protected function __construct() {}
-
-    /**
-     * @return \DCarbone\JSONToGO\Configuration
-     */
-    public static function newDefaultConfiguration()
+    public function __construct(array $config = [], LoggerInterface $logger = null)
     {
-        $c = new static;
-        foreach(static::$defaultConfigurationValues as $k => $v)
-        {
-            if ('callbacks' === $k)
-                $c->callbacks = new Callbacks();
-            else
-                $c->$k = $v;
-        }
-        return $c;
-    }
-
-    /**
-     * @param array $conf
-     * @return \DCarbone\JSONToGO\Configuration
-     */
-    public static function newConfiguration(array $conf)
-    {
-        $c = static::newDefaultConfiguration();
-        foreach($conf as $k => $v)
+        foreach($config as $k => $v)
         {
             if (!isset(static::$defaultConfigurationValues[$k]))
                 throw new \InvalidArgumentException(sprintf('Configuration: No configuration property "%s" found.', $k));
 
-            if ('callbacks' === strtolower($k))
+            if ('callbacks' === $k)
             {
-                $c->setCallbacks($v);
+                $this->setCallbacks($v);
             }
             else
             {
@@ -152,11 +137,41 @@ class Configuration
                     ));
                 }
 
-                $c->$k = $v;
+                $this->$k = $v;
             }
         }
 
-        return $c;
+        if (null === $logger)
+            $this->logger = new NullLogger();
+        else
+            $this->logger = $logger;
+    }
+
+    /**
+     * @deprecated
+     * @return Configuration
+     */
+    public static function newDefaultConfiguration()
+    {
+        return new static();
+    }
+
+    /**
+     * @deprecated
+     * @param array $conf
+     * @return Configuration
+     */
+    public static function newConfiguration(array $conf = [])
+    {
+        return new static($conf);
+    }
+
+    /**
+     * @return \Psr\Log\LoggerInterface
+     */
+    public function logger()
+    {
+        return $this->logger;
     }
 
     /**

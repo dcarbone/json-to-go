@@ -39,7 +39,7 @@ class JSONToGO
     public function __invoke($typeName, $input, Configuration $configuration = null)
     {
         if (null === $configuration)
-            $configuration = Configuration::newDefaultConfiguration();
+            $configuration = new Configuration();
 
         $new = new static($configuration);
 
@@ -55,7 +55,7 @@ class JSONToGO
     public static function parse($typeName, $input, Configuration $configuration = null)
     {
         if (null === $configuration)
-            $configuration = Configuration::newDefaultConfiguration();
+            $configuration = new Configuration();
 
         $new = new static($configuration);
 
@@ -71,7 +71,7 @@ class JSONToGO
     public static function parseDecoded($typeName, $decodedInput, Configuration $configuration = null)
     {
         if (null === $configuration)
-            $configuration = Configuration::newDefaultConfiguration();
+            $configuration = new Configuration();
 
         $encoded = json_encode($decodedInput);
         if (JSON_ERROR_NONE === json_last_error())
