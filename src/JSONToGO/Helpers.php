@@ -46,6 +46,17 @@ abstract class Helpers
 
     /**
      * @param \DCarbone\JSONToGO\Configuration $configuration
+     * @param \DCarbone\JSONToGO\Types\StructType $struct
+     * @param \DCarbone\JSONToGO\Types\AbstractType $field
+     * @return bool
+     */
+    public static function isFieldIgnored(Configuration $configuration, StructType $struct, AbstractType $field)
+    {
+        return false;
+    }
+
+    /**
+     * @param \DCarbone\JSONToGO\Configuration $configuration
      * @param mixed $typeExample
      * @return mixed
      */
