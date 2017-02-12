@@ -35,9 +35,9 @@ This class implements `__toString()`, and the return value is the parsed GO obje
 
 ## General Rules
 
-- If a key in a map is entirely comprised of numbers, it will be prefixed with `Num`
-- If a key in a map begins with a non-alphanumeric value, it will be prefixed with `X`
-- If a key in a map has a numerical first character, that character will be converted to a string following the map
+- If a property name in an object is entirely comprised of numbers, it will be prefixed with `Num`
+- If a property name in an object begins with a non-alphanumeric value, it will be prefixed with `X`
+- If a property name in an object has a numerical first character, that character will be converted to a string following the map
 seen [here](./src/JSONToGO/Configuration.php#L25).  You may optionally define your own map when initializing the
 Configuration class.
 - If a type is not possible (is a NULL in the example json...), or if there is a value type conflict between keys
@@ -50,7 +50,7 @@ within a map, the type will be defined as `interface{}`
 There are a few possible options when parsing JSON, definable in the [Configuration](./src/JSONToGO/Configuration.php)
 class:
 
-- `forceOmitEmpty` - Will place the `json:,omitempty` markup at the end of struct properties
+- `forceOmitEmpty` - Will always place the `json:,omitempty` markup at the end of struct properties
 - `forceIntToFloat` - Will convert all `int` types to `float`.
 - `useSimpleInt` - Will, if using ints, use the simple `int` type rather than attempting to determine `int32` vs `int64`
 - `forceScalarToPointer` - Will turn all simple types (string, int, float, bool) into pointers
