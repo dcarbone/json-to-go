@@ -42,7 +42,7 @@ class Configuration implements LoggerAwareInterface
             'Eight_',
             'Nine_',
         ],
-        'callbacks' => true,
+        'callbacks' => null,
     ];
 
     /** @var bool */
@@ -113,38 +113,23 @@ class Configuration implements LoggerAwareInterface
      */
     public function __construct(array $config = [], LoggerInterface $logger = null)
     {
-        foreach($config as $k => $v)
-        {
-            if (!isset(static::$defaultConfigurationValues[$k]))
-                throw new \InvalidArgumentException(sprintf('Configuration: No configuration property "%s" found.', $k));
-
-            if ('callbacks' === $k)
-            {
-                $this->setCallbacks($v);
-            }
-            else
-            {
-                $t = gettype($v);
-                $dt = gettype(static::$defaultConfigurationValues[$k]);
-
-                if ($t !== $dt)
-                {
-                    throw new \InvalidArgumentException(sprintf(
-                        'Configuration: Type mismatch.  Expected "%s", saw "%s" for key "%s"',
-                        $dt,
-                        $t,
-                        $k
-                    ));
-                }
-
-                $this->$k = $v;
-            }
-        }
-
         if (null === $logger)
-            $this->logger = new NullLogger();
-        else
-            $this->logger = $logger;
+            $logger = new NullLogger();
+
+        $this->setLogger($logger);
+
+        foreach(static::$defaultConfigurationValues as $configKey => $defaultValue)
+        {
+            if (isset($config[$configKey]))
+                $value = $config[$configKey];
+            else
+                $value = $defaultValue;
+
+            if ('callbacks' === $configKey && null == $value)
+                $value = new Callbacks();
+
+            $this->{sprintf('set%s', ucfirst($configKey))}($value);
+        }
     }
 
     /**
@@ -348,5 +333,23 @@ class Configuration implements LoggerAwareInterface
     public function numberToWord($number)
     {
        return $this->initialNumberMap[(int)$number];
+    }
+
+    /**
+     * @return string[]
+     */
+    public function initialNumberMap()
+    {
+        return $this->initialNumberMap;
+    }
+
+    /**
+     * @param array $initialNumberMap
+     * @return Configuration
+     */
+    public function setInitialNumberMap(array $initialNumberMap)
+    {
+        $this->initialNumberMap = $initialNumberMap;
+        return $this;
     }
 }
