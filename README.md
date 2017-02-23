@@ -37,11 +37,11 @@ This class implements `__toString()`, and the return value is the parsed GO obje
 
 - If a property name in an object is entirely comprised of numbers, it will be prefixed with `Num`
 - If a property name in an object begins with a non-alphanumeric value, it will be prefixed with `X`
-- If a property name in an object has a numerical first character, that character will be converted to a string following the map
-seen [here](./src/JSONToGO/Configuration.php#L25).  You may optionally define your own map when initializing the
-Configuration class.
+- If a property name in an object has a numerical first character, that character will be converted to a string
+  following the map seen [here](./src/JSONToGO/Configuration.php#L25). (e.g.: `80211X` becomes `Eight_0211X`)
+  You may optionally define your own map when initializing the Configuration class. 
 - If a type is not possible (is a NULL in the example json...), or if there is a value type conflict between keys
-within a map, the type will be defined as `interface{}`
+  within a map, the type will be defined as `interface{}`
 - The names for things will always be Exported
 - It is always a good idea to run the results through `go fmt`
 
@@ -61,7 +61,6 @@ class:
 - `callbacks` - Instance of [Callbacks](./src/JSONToGO/Callbacks.php) or array of `['callback' => callable]` where
   `callback` == name of parameter on [Callbacks](./src/JSONToGO/Callbacks.php) and `callable` == any valid php callable
   that accepts the parameters present in the function named the same as the property.
-property names (e.g.: `80211X` becomes `Eight_0211X`)
 
 ### Map and RawMessage types
 
