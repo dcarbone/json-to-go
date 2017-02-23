@@ -63,6 +63,12 @@ class:
   that accepts the parameters present in the function named the same as the property.
 property names (e.g.: `80211X` becomes `Eight_0211X`)
 
+### Map and RawMessage types
+
+By default, the [MapType](./src/JSONToGO/Types/MapType.php) and [RawMessageType](./src/JSONToGO/Types/RawMessageType.php)
+are never used.  To take advantage of these types, you must implement your own [goType](./src/JSONToGO/Typer.php#L30)
+that returns either `map` or `raw` respectively.
+
 ## Examples:
 
 Taking this example JSON payload ([source](http://json.org/example.html)):

@@ -18,3 +18,4 @@ const GOTYPE_SLICE = 'slice';
 const GOTYPE_STRUCT = 'struct';
 const GOTYPE_MAP = 'map';
 const GOTYPE_INTERFACE = 'interface{}';
+const GOTYPE_RAWMESSAGE = 'raw';

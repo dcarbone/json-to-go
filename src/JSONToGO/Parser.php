@@ -9,6 +9,7 @@
 
 use DCarbone\JSONToGO\Types\InterfaceType;
 use DCarbone\JSONToGO\Types\MapType;
+use DCarbone\JSONToGO\Types\RawMessageType;
 use DCarbone\JSONToGO\Types\SimpleType;
 use DCarbone\JSONToGO\Types\SliceType;
 use DCarbone\JSONToGO\Types\StructType;
@@ -49,6 +50,10 @@ abstract class Parser
 
             case GOTYPE_INTERFACE:
                 $type = new InterfaceType($configuration, $typeName, $typeExample);
+                break;
+
+            case GOTYPE_RAWMESSAGE:
+                $type = new RawMessageType($configuration, $typeName, $typeExample);
                 break;
 
             default:
