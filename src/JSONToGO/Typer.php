@@ -6,6 +6,7 @@
  * This software may be modified and distributed under the terms
  * of the MIT license.  See the LICENSE file for details.
  */
+
 use DCarbone\JSONToGO\Types\InterfaceType;
 use DCarbone\JSONToGO\Types\MapType;
 use DCarbone\JSONToGO\Types\TypeParent;
@@ -84,7 +85,7 @@ abstract class Typer {
      * @return \DCarbone\JSONToGO\Types\Type
      */
     public static function mostSpecificPossibleSimpleGoType(Configuration $configuration, Type $type1, Type $type2): Type {
-        if ($type1 instanceof $type2) {
+        if (get_class($type1) === get_class($type2)) {
             return $type1;
         }
 
@@ -107,20 +108,22 @@ abstract class Typer {
      */
     public static function mostSpecificPossibleComplexGoType(Configuration $configuration, Type $type1, Type $type2): Type {
         if ($type1 instanceof SliceType && $type2 instanceof SliceType) {
-            $compType = $configuration->callbacks()
+            $compType = $configuration
+                ->callbacks()
                 ->mostSpecificPossibleGoType($configuration, $type1->sliceType(), $type2->sliceType());
             if (!($compType instanceof InterfaceType)) {
                 return $type1;
             }
         } else if ($type1 instanceof MapType && $type2 instanceof MapType) {
-            $compType = $configuration->callbacks()
+            $compType = $configuration
+                ->callbacks()
                 ->mostSpecificPossibleGoType($configuration, $type1->mapType(), $type2->mapType());
             if (!($compType instanceof InterfaceType)) {
                 return $type1;
             }
         } else if ($type1 instanceof StructType && $type2 instanceof StructType) {
-            $parent = $type1->parent();
-            if (null === $parent || !($parent instanceof SliceType)) {
+            $parent1 = $type1->parent();
+            if (null === $parent1 || !($parent1 instanceof SliceType)) {
                 return $type1;
             }
 

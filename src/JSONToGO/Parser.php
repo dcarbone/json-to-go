@@ -213,7 +213,7 @@ abstract class Parser {
                 foreach ($sliceSubTypeList as $sliceSubType) {
                     if (null === $type) {
                         $type = $sliceSubType;
-                    } else if ($type instanceof $sliceSubType) {
+                    } else if (get_class($type) === get_class($sliceSubType)) {
                         $type = $configuration->callbacks()
                             ->mostSpecificPossibleGoType($configuration, $type, $sliceSubType);
                         if ($type instanceof InterfaceType) {
