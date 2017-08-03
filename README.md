@@ -174,80 +174,68 @@ And executing the following:
 Will result in (pre `go fmt`):
 
 ```go
-type RootTypeNameWebAppServletSlice []*RootTypeNameWebAppServlet
-
-type RootTypeNameWebAppServletInitParam struct {
-	ConfigGlossaryInstallationAt string `json:"configGlossary:installationAt"`
-	ConfigGlossaryAdminEmail string `json:"configGlossary:adminEmail"`
-	ConfigGlossaryPoweredBy string `json:"configGlossary:poweredBy"`
-	ConfigGlossaryPoweredByIcon string `json:"configGlossary:poweredByIcon"`
-	ConfigGlossaryStaticPath string `json:"configGlossary:staticPath"`
-	TemplateProcessorClass string `json:"templateProcessorClass"`
-	TemplateLoaderClass string `json:"templateLoaderClass"`
-	TemplatePath string `json:"templatePath"`
-	TemplateOverridePath string `json:"templateOverridePath"`
-	DefaultListTemplate string `json:"defaultListTemplate"`
-	DefaultFileTemplate string `json:"defaultFileTemplate"`
-	UseJSP bool `json:"useJSP"`
-	JspListTemplate string `json:"jspListTemplate"`
-	JspFileTemplate string `json:"jspFileTemplate"`
-	CachePackageTagsTrack int `json:"cachePackageTagsTrack"`
-	CachePackageTagsStore int `json:"cachePackageTagsStore"`
-	CachePackageTagsRefresh int `json:"cachePackageTagsRefresh"`
-	CacheTemplatesTrack int `json:"cacheTemplatesTrack"`
-	CacheTemplatesStore int `json:"cacheTemplatesStore"`
-	CacheTemplatesRefresh int `json:"cacheTemplatesRefresh"`
-	CachePagesTrack int `json:"cachePagesTrack"`
-	CachePagesStore int `json:"cachePagesStore"`
-	CachePagesRefresh int `json:"cachePagesRefresh"`
-	CachePagesDirtyRead int `json:"cachePagesDirtyRead"`
-	SearchEngineListTemplate string `json:"searchEngineListTemplate"`
-	SearchEngineFileTemplate string `json:"searchEngineFileTemplate"`
-	SearchEngineRobotsDb string `json:"searchEngineRobotsDb"`
-	UseDataStore bool `json:"useDataStore"`
-	DataStoreClass string `json:"dataStoreClass"`
-	RedirectionClass string `json:"redirectionClass"`
-	DataStoreName string `json:"dataStoreName"`
-	DataStoreDriver string `json:"dataStoreDriver"`
-	DataStoreURL string `json:"dataStoreUrl"`
-	DataStoreUser string `json:"dataStoreUser"`
-	DataStorePassword string `json:"dataStorePassword"`
-	DataStoreTestQuery string `json:"dataStoreTestQuery"`
-	DataStoreLogFile string `json:"dataStoreLogFile"`
-	DataStoreInitConns int `json:"dataStoreInitConns"`
-	DataStoreMaxConns int `json:"dataStoreMaxConns"`
-	DataStoreConnUsageLimit int `json:"dataStoreConnUsageLimit"`
-	DataStoreLogLevel string `json:"dataStoreLogLevel"`
-	MaxURLLength int `json:"maxUrlLength"`
-}
-
-type RootTypeNameWebAppServlet struct {
-	ServletName string `json:"servlet-name"`
-	ServletClass string `json:"servlet-class"`
-	InitParam *RootTypeNameWebAppServletInitParam `json:"init-param,omitempty"`
-}
-
-type RootTypeNameWebAppServletMapping struct {
-	CofaxCDS string `json:"cofaxCDS"`
-	CofaxEmail string `json:"cofaxEmail"`
-	CofaxAdmin string `json:"cofaxAdmin"`
-	FileServlet string `json:"fileServlet"`
-	CofaxTools string `json:"cofaxTools"`
-}
-
-type RootTypeNameWebAppTaglib struct {
-	TaglibURI string `json:"taglib-uri"`
-	TaglibLocation string `json:"taglib-location"`
-}
-
-type RootTypeNameWebApp struct {
-	Servlet RootTypeNameWebAppServletSlice `json:"servlet"`
-	ServletMapping *RootTypeNameWebAppServletMapping `json:"servlet-mapping"`
-	Taglib *RootTypeNameWebAppTaglib `json:"taglib"`
-}
-
 type RootTypeName struct {
-	WebApp *RootTypeNameWebApp `json:"web-app"`
+	WebApp struct {
+			Servlet []struct {
+					ServletName string `json:"servlet-name"`
+					ServletClass string `json:"servlet-class"`
+					InitParam struct {
+							ConfigGlossaryInstallationAt string `json:"configGlossary:installationAt"`
+							ConfigGlossaryAdminEmail string `json:"configGlossary:adminEmail"`
+							ConfigGlossaryPoweredBy string `json:"configGlossary:poweredBy"`
+							ConfigGlossaryPoweredByIcon string `json:"configGlossary:poweredByIcon"`
+							ConfigGlossaryStaticPath string `json:"configGlossary:staticPath"`
+							TemplateProcessorClass string `json:"templateProcessorClass"`
+							TemplateLoaderClass string `json:"templateLoaderClass"`
+							TemplatePath string `json:"templatePath"`
+							TemplateOverridePath string `json:"templateOverridePath"`
+							DefaultListTemplate string `json:"defaultListTemplate"`
+							DefaultFileTemplate string `json:"defaultFileTemplate"`
+							UseJSP bool `json:"useJSP"`
+							JspListTemplate string `json:"jspListTemplate"`
+							JspFileTemplate string `json:"jspFileTemplate"`
+							CachePackageTagsTrack int `json:"cachePackageTagsTrack"`
+							CachePackageTagsStore int `json:"cachePackageTagsStore"`
+							CachePackageTagsRefresh int `json:"cachePackageTagsRefresh"`
+							CacheTemplatesTrack int `json:"cacheTemplatesTrack"`
+							CacheTemplatesStore int `json:"cacheTemplatesStore"`
+							CacheTemplatesRefresh int `json:"cacheTemplatesRefresh"`
+							CachePagesTrack int `json:"cachePagesTrack"`
+							CachePagesStore int `json:"cachePagesStore"`
+							CachePagesRefresh int `json:"cachePagesRefresh"`
+							CachePagesDirtyRead int `json:"cachePagesDirtyRead"`
+							SearchEngineListTemplate string `json:"searchEngineListTemplate"`
+							SearchEngineFileTemplate string `json:"searchEngineFileTemplate"`
+							SearchEngineRobotsDb string `json:"searchEngineRobotsDb"`
+							UseDataStore bool `json:"useDataStore"`
+							DataStoreClass string `json:"dataStoreClass"`
+							RedirectionClass string `json:"redirectionClass"`
+							DataStoreName string `json:"dataStoreName"`
+							DataStoreDriver string `json:"dataStoreDriver"`
+							DataStoreURL string `json:"dataStoreUrl"`
+							DataStoreUser string `json:"dataStoreUser"`
+							DataStorePassword string `json:"dataStorePassword"`
+							DataStoreTestQuery string `json:"dataStoreTestQuery"`
+							DataStoreLogFile string `json:"dataStoreLogFile"`
+							DataStoreInitConns int `json:"dataStoreInitConns"`
+							DataStoreMaxConns int `json:"dataStoreMaxConns"`
+							DataStoreConnUsageLimit int `json:"dataStoreConnUsageLimit"`
+							DataStoreLogLevel string `json:"dataStoreLogLevel"`
+							MaxURLLength int `json:"maxUrlLength"`
+						} `json:"init-param,omitempty"`
+				} `json:"servlet"`
+			ServletMapping struct {
+					CofaxCDS string `json:"cofaxCDS"`
+					CofaxEmail string `json:"cofaxEmail"`
+					CofaxAdmin string `json:"cofaxAdmin"`
+					FileServlet string `json:"fileServlet"`
+					CofaxTools string `json:"cofaxTools"`
+				} `json:"servlet-mapping"`
+			Taglib struct {
+					TaglibURI string `json:"taglib-uri"`
+					TaglibLocation string `json:"taglib-location"`
+				} `json:"taglib"`
+		} `json:"web-app"`
 }
 
 ```
