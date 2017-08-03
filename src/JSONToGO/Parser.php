@@ -9,12 +9,12 @@
 
 use DCarbone\JSONToGO\Types\InterfaceType;
 use DCarbone\JSONToGO\Types\MapType;
-use DCarbone\JSONToGO\Types\ParentTypeInterface;
+use DCarbone\JSONToGO\Types\TypeParent;
 use DCarbone\JSONToGO\Types\RawMessageType;
 use DCarbone\JSONToGO\Types\SimpleType;
 use DCarbone\JSONToGO\Types\SliceType;
 use DCarbone\JSONToGO\Types\StructType;
-use DCarbone\JSONToGO\Types\TypeInterface;
+use DCarbone\JSONToGO\Types\Type;
 
 /**
  * Class Parser
@@ -26,13 +26,13 @@ abstract class Parser {
      * @param \DCarbone\JSONToGO\Configuration $configuration
      * @param string $typeName
      * @param $typeExample
-     * @param \DCarbone\JSONToGO\Types\ParentTypeInterface|null $parent
-     * @return \DCarbone\JSONToGO\Types\TypeInterface
+     * @param \DCarbone\JSONToGO\Types\TypeParent|null $parent
+     * @return \DCarbone\JSONToGO\Types\Type
      */
     public static function parseType(Configuration $configuration,
                                      string $typeName,
                                      $typeExample,
-                                     ParentTypeInterface $parent = null): TypeInterface {
+                                     TypeParent $parent = null): Type {
         $goType = $configuration->callbacks()->goType($configuration, $typeName, $typeExample, $parent);
         switch ($goType) {
             case GOTYPE_STRUCT:
@@ -70,13 +70,13 @@ abstract class Parser {
      * @param \DCarbone\JSONToGO\Configuration $configuration
      * @param string $typeName
      * @param \stdClass $typeExample
-     * @param \DCarbone\JSONToGO\Types\ParentTypeInterface|null $parent
+     * @param \DCarbone\JSONToGO\Types\TypeParent|null $parent
      * @return \DCarbone\JSONToGO\Types\StructType
      */
     public static function parseStructType(Configuration $configuration,
                                            string $typeName,
                                            \stdClass $typeExample,
-                                           ParentTypeInterface $parent = null): StructType {
+                                           TypeParent $parent = null): StructType {
         $structType = new StructType($configuration, $typeName, $typeExample, $parent);
 
         foreach (get_object_vars($typeExample) as $childTypeName => $childTypeExample) {
@@ -90,13 +90,10 @@ abstract class Parser {
      * @param \DCarbone\JSONToGO\Configuration $configuration
      * @param string $typeName
      * @param \stdClass $typeExample
-     * @param \DCarbone\JSONToGO\Types\ParentTypeInterface|null $parent
+     * @param \DCarbone\JSONToGO\Types\TypeParent|null $parent
      * @return \DCarbone\JSONToGO\Types\MapType
      */
-    public static function parseMapType(Configuration $configuration,
-                                        string $typeName,
-                                        \stdClass $typeExample,
-                                        ParentTypeInterface $parent = null): MapType {
+    public static function parseMapType(Configuration $configuration, string $typeName, \stdClass $typeExample, TypeParent $parent = null): MapType {
         $mapType = new MapType($configuration, $typeName, $typeExample, $parent);
 
         $varList = get_object_vars($typeExample);
@@ -131,13 +128,13 @@ abstract class Parser {
      * @param \DCarbone\JSONToGO\Configuration $configuration
      * @param string $typeName
      * @param array $typeExample
-     * @param \DCarbone\JSONToGO\Types\ParentTypeInterface|null $parent
+     * @param \DCarbone\JSONToGO\Types\TypeParent|null $parent
      * @return \DCarbone\JSONToGO\Types\SliceType
      */
     public static function parseSliceType(Configuration $configuration,
                                           string $typeName,
                                           array $typeExample,
-                                          ParentTypeInterface $parent = null): SliceType {
+                                          TypeParent $parent = null): SliceType {
         $sliceType = new SliceType($configuration, $typeName, $typeExample, $parent);
 
         $sliceGoType = null;
@@ -152,7 +149,6 @@ abstract class Parser {
                 $sliceGoType = $configuration
                     ->callbacks()
                     ->mostSpecificPossibleGoType($configuration, $thisType, $sliceGoType);
-
 
                 if ($sliceGoType instanceof InterfaceType) {
                     break;

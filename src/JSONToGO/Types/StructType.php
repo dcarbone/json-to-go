@@ -9,11 +9,10 @@
 
 /**
  * Class StructType
- *
  * @package DCarbone\JSONToGO\Types
  */
-class StructType extends AbstractType implements ParentTypeInterface {
-    /** @var \DCarbone\JSONToGO\Types\TypeInterface[] */
+class StructType extends AbstractType implements TypeParent {
+    /** @var \DCarbone\JSONToGO\Types\Type[] */
     protected $fields = [];
 
     /**
@@ -31,17 +30,17 @@ class StructType extends AbstractType implements ParentTypeInterface {
     }
 
     /**
-     * @return \DCarbone\JSONToGO\Types\TypeInterface[]
+     * @return \DCarbone\JSONToGO\Types\Type[]
      */
     public function fields(): array {
         return $this->fields;
     }
 
     /**
-     * @param \DCarbone\JSONToGO\Types\TypeInterface $child
+     * @param \DCarbone\JSONToGO\Types\Type $child
      * @return \DCarbone\JSONToGO\Types\StructType
      */
-    public function addChild(TypeInterface $child): StructType {
+    public function addChild(Type $child): StructType {
         $child->setParent($this);
         $this->fields[$child->name()] = $child;
         return $this;

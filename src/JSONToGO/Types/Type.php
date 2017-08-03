@@ -8,10 +8,10 @@
  */
 
 /**
- * Interface TypeInterface
+ * Interface Type
  * @package DCarbone\JSONToGO\Types
  */
-interface TypeInterface {
+interface Type {
     /**
      * @return string
      */
@@ -49,15 +49,20 @@ interface TypeInterface {
     public function isAlwaysDefined(): bool;
 
     /**
-     * @return \DCarbone\JSONToGO\Types\ParentTypeInterface|null
+     * @return \DCarbone\JSONToGO\Types\Type
      */
-    public function parent(): ?ParentTypeInterface;
+    public function notAlwaysDefined(): Type;
 
     /**
-     * @param \DCarbone\JSONToGO\Types\ParentTypeInterface $parent
-     * @return \DCarbone\JSONToGO\Types\TypeInterface
+     * @return \DCarbone\JSONToGO\Types\TypeParent|null
      */
-    public function setParent(ParentTypeInterface $parent): TypeInterface;
+    public function parent(): ?TypeParent;
+
+    /**
+     * @param \DCarbone\JSONToGO\Types\TypeParent $parent
+     * @return \DCarbone\JSONToGO\Types\Type
+     */
+    public function setParent(TypeParent $parent): Type;
 
     /**
      * @return string

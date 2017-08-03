@@ -8,9 +8,9 @@
  */
 
 /**
- * Interface ParentTypeInterface
+ * Interface TypeParent
  * @package DCarbone\JSONToGO\Types
  */
-interface ParentTypeInterface extends TypeInterface {
+interface TypeParent extends Type {
 
 }

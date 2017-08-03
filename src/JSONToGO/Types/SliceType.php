@@ -1,12 +1,18 @@
 <?php namespace DCarbone\JSONToGO\Types;
 
+/*
+ * Copyright (C) 2016-2017 Daniel Carbone (daniel.p.carbone@gmail.com)
+ *
+ * This software may be modified and distributed under the terms
+ * of the MIT license.  See the LICENSE file for details.
+ */
+
 /**
  * Class SliceType
- *
  * @package DCarbone\JSONToGO\Types
  */
-class SliceType extends AbstractType implements ParentTypeInterface {
-    /** @var \DCarbone\JSONToGO\Types\TypeInterface */
+class SliceType extends AbstractType implements TypeParent {
+    /** @var \DCarbone\JSONToGO\Types\Type */
     protected $sliceType = null;
 
     /**
@@ -24,19 +30,19 @@ class SliceType extends AbstractType implements ParentTypeInterface {
     }
 
     /**
-     * @param \DCarbone\JSONToGO\Types\TypeInterface $sliceType
+     * @param \DCarbone\JSONToGO\Types\Type $sliceType
      * @return \DCarbone\JSONToGO\Types\SliceType
      */
-    public function setSliceType(TypeInterface $sliceType): SliceType {
+    public function setSliceType(Type $sliceType): SliceType {
         $sliceType->setParent($this);
         $this->sliceType = $sliceType;
         return $this;
     }
 
     /**
-     * @return \DCarbone\JSONToGO\Types\TypeInterface
+     * @return \DCarbone\JSONToGO\Types\Type
      */
-    public function sliceType(): TypeInterface {
+    public function sliceType(): Type {
         return $this->sliceType;
     }
 

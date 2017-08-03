@@ -7,7 +7,7 @@
  * of the MIT license.  See the LICENSE file for details.
  */
 
-use DCarbone\JSONToGO\Types\TypeInterface;
+use DCarbone\JSONToGO\Types\Type;
 use DCarbone\JSONToGO\Types\StructType;
 
 /**
@@ -19,12 +19,10 @@ abstract class Helpers {
     /**
      * @param \DCarbone\JSONToGO\Configuration $configuration
      * @param \DCarbone\JSONToGO\Types\StructType $struct
-     * @param \DCarbone\JSONToGO\Types\TypeInterface $field
+     * @param \DCarbone\JSONToGO\Types\Type $field
      * @return string
      */
-    public static function buildStructFieldTag(Configuration $configuration,
-                                               StructType $struct,
-                                               TypeInterface $field): string {
+    public static function buildStructFieldTag(Configuration $configuration, StructType $struct, Type $field): string {
         $tag = sprintf('json:"%s', $field->name());
 
         if (false === $field->isAlwaysDefined() || $configuration->forceOmitEmpty()) {
@@ -37,22 +35,20 @@ abstract class Helpers {
     /**
      * @param \DCarbone\JSONToGO\Configuration $configuration
      * @param \DCarbone\JSONToGO\Types\StructType $struct
-     * @param \DCarbone\JSONToGO\Types\TypeInterface $field
+     * @param \DCarbone\JSONToGO\Types\Type $field
      * @return bool
      */
-    public static function isFieldExported(Configuration $configuration,
-                                           StructType $struct,
-                                           TypeInterface $field): bool {
+    public static function isFieldExported(Configuration $configuration, StructType $struct, Type $field): bool {
         return true;
     }
 
     /**
      * @param \DCarbone\JSONToGO\Configuration $configuration
      * @param \DCarbone\JSONToGO\Types\StructType $struct
-     * @param \DCarbone\JSONToGO\Types\TypeInterface $field
+     * @param \DCarbone\JSONToGO\Types\Type $field
      * @return bool
      */
-    public static function isFieldIgnored(Configuration $configuration, StructType $struct, TypeInterface $field): bool {
+    public static function isFieldIgnored(Configuration $configuration, StructType $struct, Type $field): bool {
         return false;
     }
 

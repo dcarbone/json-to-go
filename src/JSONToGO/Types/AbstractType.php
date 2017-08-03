@@ -11,10 +11,9 @@ use DCarbone\JSONToGO\Configuration;
 
 /**
  * Class AbstractType
- *
  * @package DCarbone\JSONToGO\Types
  */
-abstract class AbstractType implements TypeInterface {
+abstract class AbstractType implements Type {
     /** @var \DCarbone\JSONToGO\Configuration */
     protected $configuration;
 
@@ -26,7 +25,7 @@ abstract class AbstractType implements TypeInterface {
     /** @var bool */
     protected $alwaysDefined = true;
 
-    /** @var \DCarbone\JSONToGO\Types\ParentTypeInterface|null */
+    /** @var \DCarbone\JSONToGO\Types\TypeParent|null */
     protected $parent = null;
 
     /**
@@ -34,12 +33,12 @@ abstract class AbstractType implements TypeInterface {
      * @param \DCarbone\JSONToGO\Configuration $configuration
      * @param string $name
      * @param mixed $example
-     * @param \DCarbone\JSONToGO\Types\ParentTypeInterface|null $parent
+     * @param \DCarbone\JSONToGO\Types\TypeParent|null $parent
      */
     public function __construct(Configuration $configuration,
                                 string $name,
                                 $example,
-                                ParentTypeInterface $parent = null) {
+                                TypeParent $parent = null) {
         $this->configuration = $configuration;
         $this->name = $name;
         $this->example = $example;
@@ -105,25 +104,25 @@ abstract class AbstractType implements TypeInterface {
     }
 
     /**
-     * @return \DCarbone\JSONToGO\Types\TypeInterface
+     * @return \DCarbone\JSONToGO\Types\Type
      */
-    public function notAlwaysDefined(): TypeInterface {
+    public function notAlwaysDefined(): Type {
         $this->alwaysDefined = false;
         return $this;
     }
 
     /**
-     * @return \DCarbone\JSONToGO\Types\ParentTypeInterface|null
+     * @return \DCarbone\JSONToGO\Types\TypeParent|null
      */
-    public function parent(): ?ParentTypeInterface {
+    public function parent(): ?TypeParent {
         return $this->parent;
     }
 
     /**
-     * @param \DCarbone\JSONToGO\Types\ParentTypeInterface $parent
-     * @return \DCarbone\JSONToGO\Types\TypeInterface
+     * @param \DCarbone\JSONToGO\Types\TypeParent $parent
+     * @return \DCarbone\JSONToGO\Types\Type
      */
-    public function setParent(ParentTypeInterface $parent): TypeInterface {
+    public function setParent(TypeParent $parent): Type {
         if ($parent instanceof SliceType || $parent instanceof StructType || $parent instanceof MapType) {
             $this->parent = $parent;
             return $this;

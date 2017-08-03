@@ -11,7 +11,6 @@ use DCarbone\JSONToGO\Configuration;
 
 /**
  * Class SimpleType
- *
  * @package DCarbone\JSONToGO\Types
  */
 class SimpleType extends AbstractType {

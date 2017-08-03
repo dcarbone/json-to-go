@@ -6,13 +6,13 @@
  * This software may be modified and distributed under the terms
  * of the MIT license.  See the LICENSE file for details.
  */
-use DCarbone\JSONToGO\Types\TypeInterface;
 use DCarbone\JSONToGO\Types\InterfaceType;
 use DCarbone\JSONToGO\Types\MapType;
-use DCarbone\JSONToGO\Types\ParentTypeInterface;
+use DCarbone\JSONToGO\Types\TypeParent;
 use DCarbone\JSONToGO\Types\SimpleType;
 use DCarbone\JSONToGO\Types\SliceType;
 use DCarbone\JSONToGO\Types\StructType;
+use DCarbone\JSONToGO\Types\Type;
 
 /**
  * Class NameUtils
@@ -24,13 +24,10 @@ abstract class Typer {
      * @param \DCarbone\JSONToGO\Configuration $configuration
      * @param string $typeName
      * @param mixed $typeExample
-     * @param \DCarbone\JSONToGO\Types\ParentTypeInterface|null $parent
+     * @param \DCarbone\JSONToGO\Types\TypeParent|null $parent
      * @return string
      */
-    public static function goType(Configuration $configuration,
-                                  string $typeName,
-                                  $typeExample,
-                                  ParentTypeInterface $parent = null): string {
+    public static function goType(Configuration $configuration, string $typeName, $typeExample, TypeParent $parent = null): string {
         $type = gettype($typeExample);
 
         if ('string' === $type) {
@@ -73,23 +70,20 @@ abstract class Typer {
     }
 
     /**
-     * @param \DCarbone\JSONToGO\Types\TypeInterface $type
+     * @param \DCarbone\JSONToGO\Types\Type $type
      * @return bool
      */
-    public static function isSimpleGoType(TypeInterface $type) {
+    public static function isSimpleGoType(Type $type) {
         return $type instanceof SimpleType;
     }
 
-
     /**
      * @param \DCarbone\JSONToGO\Configuration $configuration
-     * @param \DCarbone\JSONToGO\Types\TypeInterface $type1
-     * @param \DCarbone\JSONToGO\Types\TypeInterface $type2
-     * @return \DCarbone\JSONToGO\Types\TypeInterface
+     * @param \DCarbone\JSONToGO\Types\Type $type1
+     * @param \DCarbone\JSONToGO\Types\Type $type2
+     * @return \DCarbone\JSONToGO\Types\Type
      */
-    public static function mostSpecificPossibleSimpleGoType(Configuration $configuration,
-                                                            TypeInterface $type1,
-                                                            TypeInterface $type2) {
+    public static function mostSpecificPossibleSimpleGoType(Configuration $configuration, Type $type1, Type $type2): Type {
         if ($type1 instanceof $type2) {
             return $type1;
         }
@@ -107,45 +101,41 @@ abstract class Typer {
 
     /**
      * @param \DCarbone\JSONToGO\Configuration $configuration
-     * @param \DCarbone\JSONToGO\Types\TypeInterface $type1
-     * @param \DCarbone\JSONToGO\Types\TypeInterface $type2
-     * @return \DCarbone\JSONToGO\Types\TypeInterface
+     * @param \DCarbone\JSONToGO\Types\Type $type1
+     * @param \DCarbone\JSONToGO\Types\Type $type2
+     * @return \DCarbone\JSONToGO\Types\Type
      */
-    public static function mostSpecificPossibleComplexGoType(Configuration $configuration,
-                                                             TypeInterface $type1,
-                                                             TypeInterface $type2) {
-        if ($type1 instanceof $type2) {
-            if ($type1 instanceof SliceType) {
-                $compType = $configuration->callbacks()
-                    ->mostSpecificPossibleGoType($configuration, $type1->sliceType(), $type2->sliceType());
-                if (!($compType instanceof InterfaceType)) {
-                    return $type1;
-                }
-            } else if ($type1 instanceof MapType) {
-                $compType = $configuration->callbacks()
-                    ->mostSpecificPossibleGoType($configuration, $type1->mapType(), $type2->mapType());
-                if (!($compType instanceof InterfaceType)) {
-                    return $type1;
-                }
-            } else if ($type1 instanceof StructType) {
-                $parent = $type1->parent();
-                if (null === $parent || !($parent instanceof SliceType)) {
-                    return $type1;
-                }
-
-                $k1 = array_keys(get_object_vars($type1->example()));
-                $k2 = array_keys(get_object_vars($type2->example()));
-
-                sort($k1);
-                sort($k2);
-
-                $diff = array_diff($k1, $k2);
-                if (0 === count($diff)) {
-                    return $type1;
-                }
-            } else {
+    public static function mostSpecificPossibleComplexGoType(Configuration $configuration, Type $type1, Type $type2): Type {
+        if ($type1 instanceof SliceType && $type2 instanceof SliceType) {
+            $compType = $configuration->callbacks()
+                ->mostSpecificPossibleGoType($configuration, $type1->sliceType(), $type2->sliceType());
+            if (!($compType instanceof InterfaceType)) {
                 return $type1;
             }
+        } else if ($type1 instanceof MapType && $type2 instanceof MapType) {
+            $compType = $configuration->callbacks()
+                ->mostSpecificPossibleGoType($configuration, $type1->mapType(), $type2->mapType());
+            if (!($compType instanceof InterfaceType)) {
+                return $type1;
+            }
+        } else if ($type1 instanceof StructType && $type2 instanceof StructType) {
+            $parent = $type1->parent();
+            if (null === $parent || !($parent instanceof SliceType)) {
+                return $type1;
+            }
+
+            $k1 = array_keys(get_object_vars($type1->example()));
+            $k2 = array_keys(get_object_vars($type2->example()));
+
+            sort($k1);
+            sort($k2);
+
+            $diff = array_diff($k1, $k2);
+            if (0 === count($diff)) {
+                return $type1;
+            }
+        } else if (get_class($type1) === get_class($type2)) {
+            return $type1;
         }
 
         return new InterfaceType($configuration, $type1->name(), $type1->example());
@@ -153,13 +143,11 @@ abstract class Typer {
 
     /**
      * @param \DCarbone\JSONToGO\Configuration $configuration
-     * @param \DCarbone\JSONToGO\Types\TypeInterface $type1
-     * @param \DCarbone\JSONToGO\Types\TypeInterface $type2
-     * @return \DCarbone\JSONToGO\Types\TypeInterface
+     * @param \DCarbone\JSONToGO\Types\Type $type1
+     * @param \DCarbone\JSONToGO\Types\Type $type2
+     * @return \DCarbone\JSONToGO\Types\Type
      */
-    public static function mostSpecificPossibleGoType(Configuration $configuration,
-                                                      TypeInterface $type1,
-                                                      TypeInterface $type2) {
+    public static function mostSpecificPossibleGoType(Configuration $configuration, Type $type1, Type $type2): Type {
         if (static::isSimpleGoType($type1) && static::isSimpleGoType($type2)) {
             return static::mostSpecificPossibleSimpleGoType($configuration, $type1, $type2);
         }

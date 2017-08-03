@@ -9,7 +9,7 @@
 
 use DCarbone\JSONToGO\Configuration;
 use DCarbone\JSONToGO\Parser;
-use DCarbone\JSONToGO\Types\TypeInterface;
+use DCarbone\JSONToGO\Types\Type;
 
 /**
  * Class JSONToGO
@@ -36,9 +36,9 @@ class JSONToGO {
      * @param string $typeName
      * @param string $input
      * @param \DCarbone\JSONToGO\Configuration|null $configuration
-     * @return \DCarbone\JSONToGO\Types\TypeInterface
+     * @return \DCarbone\JSONToGO\Types\Type
      */
-    public function __invoke(string $typeName, string $input, Configuration $configuration = null): TypeInterface {
+    public function __invoke(string $typeName, string $input, Configuration $configuration = null): Type {
         if (null === $configuration) {
             $configuration = new Configuration();
         }
@@ -52,9 +52,9 @@ class JSONToGO {
      * @param string $typeName
      * @param string $input
      * @param \DCarbone\JSONToGO\Configuration $configuration
-     * @return \DCarbone\JSONToGO\Types\TypeInterface
+     * @return \DCarbone\JSONToGO\Types\Type
      */
-    public static function parse(string $typeName, string $input, Configuration $configuration = null): TypeInterface {
+    public static function parse(string $typeName, string $input, Configuration $configuration = null): Type {
         if (null === $configuration) {
             $configuration = new Configuration();
         }
@@ -68,11 +68,11 @@ class JSONToGO {
      * @param string $typeName
      * @param mixed $decodedInput
      * @param \DCarbone\JSONToGO\Configuration $configuration
-     * @return \DCarbone\JSONToGO\Types\TypeInterface
+     * @return \DCarbone\JSONToGO\Types\Type
      */
     public static function parseDecoded(string $typeName,
                                         $decodedInput,
-                                        Configuration $configuration = null): TypeInterface {
+                                        Configuration $configuration = null): Type {
         if (null === $configuration) {
             $configuration = new Configuration();
         }
@@ -89,9 +89,9 @@ class JSONToGO {
     /**
      * @param string $typeName
      * @param string $input
-     * @return \DCarbone\JSONToGO\Types\TypeInterface
+     * @return \DCarbone\JSONToGO\Types\Type
      */
-    public function generate(string $typeName, string $input): TypeInterface {
+    public function generate(string $typeName, string $input): Type {
         $typeName = trim($typeName);
         if ('' === $typeName || !preg_match('/' . self::TYPE_NAME_REGEX . '/', $typeName)) {
             throw new \InvalidArgumentException(get_class($this) .

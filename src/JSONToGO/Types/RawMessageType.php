@@ -11,7 +11,6 @@ use DCarbone\JSONToGO\Configuration;
 
 /**
  * Class RawMessageType
- *
  * @package DCarbone\JSONToGO\Types
  */
 class RawMessageType extends SimpleType {

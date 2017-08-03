@@ -9,10 +9,9 @@
 
 /**
  * Class MapType
- *
  * @package DCarbone\JSONToGO\Types
  */
-class MapType extends AbstractType implements ParentTypeInterface {
+class MapType extends AbstractType implements TypeParent {
     /** @var AbstractType */
     protected $mapType;
 
@@ -31,19 +30,19 @@ class MapType extends AbstractType implements ParentTypeInterface {
     }
 
     /**
-     * @param \DCarbone\JSONToGO\Types\TypeInterface $mapType
+     * @param \DCarbone\JSONToGO\Types\Type $mapType
      * @return \DCarbone\JSONToGO\Types\MapType
      */
-    public function setMapType(TypeInterface $mapType): MapType {
+    public function setMapType(Type $mapType): MapType {
         $mapType->setParent($this);
         $this->mapType = $mapType;
         return $this;
     }
 
     /**
-     * @return \DCarbone\JSONToGO\Types\TypeInterface
+     * @return \DCarbone\JSONToGO\Types\Type
      */
-    public function mapType(): TypeInterface {
+    public function mapType(): Type {
         return $this->mapType;
     }
 

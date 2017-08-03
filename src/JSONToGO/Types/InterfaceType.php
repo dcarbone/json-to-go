@@ -9,7 +9,6 @@
 
 /**
  * Class InterfaceType
- *
  * @package DCarbone\JSONToGO\Types
  */
 class InterfaceType extends AbstractType {

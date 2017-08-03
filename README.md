@@ -64,7 +64,7 @@ class:
 
 ### Map and RawMessage types
 
-By default, the [MapType](./src/JSONToGO/Types/MapType.php) and [RawMessageType](./src/JSONToGO/Types/RawMessageType.php)
+By default, the [MapType](src/JSONToGO/Types/MapType.php) and [RawMessageType](./src/JSONToGO/Types/RawMessageType.php)
 are never used.  To take advantage of these types, you must implement your own [goType](./src/JSONToGO/Typer.php#L30)
 that returns either `map` or `raw` respectively.
 

@@ -14,7 +14,6 @@ use Psr\Log\NullLogger;
 
 /**
  * Class Configuration
- *
  * @package DCarbone\JSONToGO
  */
 class Configuration implements LoggerAwareInterface {

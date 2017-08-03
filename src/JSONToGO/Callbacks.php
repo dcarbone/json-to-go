@@ -7,13 +7,12 @@
  * of the MIT license.  See the LICENSE file for details.
  */
 
-use DCarbone\JSONToGO\Types\TypeInterface;
-use DCarbone\JSONToGO\Types\ParentTypeInterface;
+use DCarbone\JSONToGO\Types\Type;
+use DCarbone\JSONToGO\Types\TypeParent;
 use DCarbone\JSONToGO\Types\StructType;
 
 /**
  * Class Callbacks
- *
  * @package DCarbone\JSONToGO
  */
 class Callbacks {
@@ -89,55 +88,55 @@ class Callbacks {
      * @param \DCarbone\JSONToGO\Configuration $configuration
      * @param string $typeName
      * @param mixed $typeExample
-     * @param \DCarbone\JSONToGO\Types\ParentTypeInterface|null $parent
+     * @param \DCarbone\JSONToGO\Types\TypeParent|null $parent
      * @return string
      */
     public function goType(Configuration $configuration,
                            string $typeName,
                            $typeExample,
-                           ParentTypeInterface $parent = null): string {
+                           TypeParent $parent = null): string {
         return call_user_func($this->goType, $configuration, $typeName, $typeExample, $parent);
     }
 
     /**
      * @param \DCarbone\JSONToGO\Configuration $configuration
-     * @param \DCarbone\JSONToGO\Types\TypeInterface $type1
-     * @param \DCarbone\JSONToGO\Types\TypeInterface $type2
-     * @return \DCarbone\JSONToGO\Types\TypeInterface
+     * @param \DCarbone\JSONToGO\Types\Type $type1
+     * @param \DCarbone\JSONToGO\Types\Type $type2
+     * @return \DCarbone\JSONToGO\Types\Type
      */
     public function mostSpecificPossibleGoType(Configuration $configuration,
-                                               TypeInterface $type1,
-                                               TypeInterface $type2): TypeInterface {
+                                               Type $type1,
+                                               Type $type2): Type {
         return call_user_func($this->mostSpecificPossibleGoType, $configuration, $type1, $type2);
     }
 
     /**
      * @param \DCarbone\JSONToGO\Configuration $configuration
      * @param \DCarbone\JSONToGO\Types\StructType $struct
-     * @param \DCarbone\JSONToGO\Types\TypeInterface $field
+     * @param \DCarbone\JSONToGO\Types\Type $field
      * @return string
      */
-    public function buildStructFieldTag(Configuration $configuration, StructType $struct, TypeInterface $field): string {
+    public function buildStructFieldTag(Configuration $configuration, StructType $struct, Type $field): string {
         return call_user_func($this->buildStructFieldTag, $configuration, $struct, $field);
     }
 
     /**
      * @param \DCarbone\JSONToGO\Configuration $configuration
      * @param \DCarbone\JSONToGO\Types\StructType $struct
-     * @param \DCarbone\JSONToGO\Types\TypeInterface $field
+     * @param \DCarbone\JSONToGO\Types\Type $field
      * @return bool
      */
-    public function isFieldExported(Configuration $configuration, StructType $struct, TypeInterface $field): bool {
+    public function isFieldExported(Configuration $configuration, StructType $struct, Type $field): bool {
         return (bool)call_user_func($this->isFieldExported, $configuration, $struct, $field);
     }
 
     /**
      * @param \DCarbone\JSONToGO\Configuration $configuration
      * @param \DCarbone\JSONToGO\Types\StructType $struct
-     * @param \DCarbone\JSONToGO\Types\TypeInterface $field
+     * @param \DCarbone\JSONToGO\Types\Type $field
      * @return bool
      */
-    public function isFieldIgnored(Configuration $configuration, StructType $struct, TypeInterface $field): bool {
+    public function isFieldIgnored(Configuration $configuration, StructType $struct, Type $field): bool {
         return (bool)call_user_func($this->isFieldIgnored, $configuration, $struct, $field);
     }
 
