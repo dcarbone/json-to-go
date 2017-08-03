@@ -7,16 +7,15 @@
  * of the MIT license.  See the LICENSE file for details.
  */
 
-use DCarbone\JSONToGO\Types\AbstractType;
+use DCarbone\JSONToGO\Types\Type;
+use DCarbone\JSONToGO\Types\TypeParent;
 use DCarbone\JSONToGO\Types\StructType;
 
 /**
  * Class Callbacks
- *
  * @package DCarbone\JSONToGO
  */
-class Callbacks
-{
+class Callbacks {
     /** @var callable */
     private $sanitizeInput = ['\\DCarbone\\JSONToGO\\Helpers', 'sanitizeInput'];
     /** @var callable */
@@ -41,12 +40,11 @@ class Callbacks
      *
      * @param array $callableArray
      */
-    public function __construct(array $callableArray = [])
-    {
-        foreach($callableArray as $k => $callable)
-        {
-            if (isset($this->$k))
+    public function __construct(array $callableArray = []) {
+        foreach ($callableArray as $k => $callable) {
+            if (isset($this->$k)) {
                 $this->$k = $callable;
+            }
         }
     }
 
@@ -55,8 +53,7 @@ class Callbacks
      * @param mixed $typeExample
      * @return mixed
      */
-    public function sanitizeInput(Configuration $configuration, $typeExample)
-    {
+    public function sanitizeInput(Configuration $configuration, $typeExample) {
         return call_user_func($this->sanitizeInput, $configuration, $typeExample);
     }
 
@@ -65,8 +62,7 @@ class Callbacks
      * @param string $propertyName
      * @return string
      */
-    public function formatPropertyName(Configuration $configuration, $propertyName)
-    {
+    public function formatPropertyName(Configuration $configuration, string $propertyName): string {
         return call_user_func($this->formatPropertyName, $configuration, $propertyName);
     }
 
@@ -75,8 +71,7 @@ class Callbacks
      * @param string $string
      * @return string
      */
-    public function handleSpecialCharacters(Configuration $configuration, $string)
-    {
+    public function handleSpecialCharacters(Configuration $configuration, string $string): string {
         return call_user_func($this->handleSpecialCharacters, $configuration, $string);
     }
 
@@ -85,8 +80,7 @@ class Callbacks
      * @param string $string
      * @return string
      */
-    public function toProperCase(Configuration $configuration, $string)
-    {
+    public function toProperCase(Configuration $configuration, string $string): string {
         return call_user_func($this->toProperCase, $configuration, $string);
     }
 
@@ -94,145 +88,136 @@ class Callbacks
      * @param \DCarbone\JSONToGO\Configuration $configuration
      * @param string $typeName
      * @param mixed $typeExample
-     * @param \DCarbone\JSONToGO\Types\StructType|\DCarbone\JSONToGO\Types\SliceType|\DCarbone\JSONToGO\Types\MapType $parent
+     * @param \DCarbone\JSONToGO\Types\TypeParent|null $parent
      * @return string
      */
-    public function goType(Configuration $configuration, $typeName, $typeExample, $parent = null)
-    {
+    public function goType(Configuration $configuration,
+                           string $typeName,
+                           $typeExample,
+                           TypeParent $parent = null): string {
         return call_user_func($this->goType, $configuration, $typeName, $typeExample, $parent);
     }
 
     /**
      * @param \DCarbone\JSONToGO\Configuration $configuration
-     * @param \DCarbone\JSONToGO\Types\AbstractType $type1
-     * @param \DCarbone\JSONToGO\Types\AbstractType $type2
-     * @return AbstractType
+     * @param \DCarbone\JSONToGO\Types\Type $type1
+     * @param \DCarbone\JSONToGO\Types\Type $type2
+     * @return \DCarbone\JSONToGO\Types\Type
      */
-    public function mostSpecificPossibleGoType(Configuration $configuration, AbstractType $type1, AbstractType $type2)
-    {
+    public function mostSpecificPossibleGoType(Configuration $configuration,
+                                               Type $type1,
+                                               Type $type2): Type {
         return call_user_func($this->mostSpecificPossibleGoType, $configuration, $type1, $type2);
     }
 
     /**
      * @param \DCarbone\JSONToGO\Configuration $configuration
      * @param \DCarbone\JSONToGO\Types\StructType $struct
-     * @param \DCarbone\JSONToGO\Types\AbstractType $field
+     * @param \DCarbone\JSONToGO\Types\Type $field
      * @return string
      */
-    public function buildStructFieldTag(Configuration $configuration, StructType $struct, AbstractType $field)
-    {
+    public function buildStructFieldTag(Configuration $configuration, StructType $struct, Type $field): string {
         return call_user_func($this->buildStructFieldTag, $configuration, $struct, $field);
     }
 
     /**
      * @param \DCarbone\JSONToGO\Configuration $configuration
      * @param \DCarbone\JSONToGO\Types\StructType $struct
-     * @param \DCarbone\JSONToGO\Types\AbstractType $field
+     * @param \DCarbone\JSONToGO\Types\Type $field
      * @return bool
      */
-    public function isFieldExported(Configuration $configuration, StructType $struct, AbstractType $field)
-    {
+    public function isFieldExported(Configuration $configuration, StructType $struct, Type $field): bool {
         return (bool)call_user_func($this->isFieldExported, $configuration, $struct, $field);
     }
 
     /**
      * @param \DCarbone\JSONToGO\Configuration $configuration
      * @param \DCarbone\JSONToGO\Types\StructType $struct
-     * @param \DCarbone\JSONToGO\Types\AbstractType $field
+     * @param \DCarbone\JSONToGO\Types\Type $field
      * @return bool
      */
-    public function isFieldIgnored(Configuration $configuration, StructType $struct, AbstractType $field)
-    {
+    public function isFieldIgnored(Configuration $configuration, StructType $struct, Type $field): bool {
         return (bool)call_user_func($this->isFieldIgnored, $configuration, $struct, $field);
     }
 
     /**
-     * @param callable $sanitizeInput
-     * @return Callbacks
+     * @param callable $callable
+     * @return \DCarbone\JSONToGO\Callbacks
      */
-    public function setSanitizeInputCallback($sanitizeInput)
-    {
-        $this->sanitizeInput = $sanitizeInput;
+    public function setSanitizeInputCallback($callable): Callbacks {
+        $this->sanitizeInput = $callable;
         return $this;
     }
 
     /**
      * @param callable $callable
-     * @return Callbacks
+     * @return \DCarbone\JSONToGO\Callbacks
      */
-    public function setFormatPropertyNameCallback($callable)
-    {
+    public function setFormatPropertyNameCallback($callable): Callbacks {
         $this->formatPropertyName = $callable;
         return $this;
     }
 
     /**
      * @param callable $callable
-     * @return Callbacks
+     * @return \DCarbone\JSONToGO\Callbacks
      */
-    public function setHandleSpecialCharactersCallback($callable)
-    {
+    public function setHandleSpecialCharactersCallback($callable): Callbacks {
         $this->handleSpecialCharacters = $callable;
         return $this;
     }
 
     /**
-     * @param callable $toProperCase
-     * @return Callbacks
+     * @param callable $callable
+     * @return \DCarbone\JSONToGO\Callbacks
      */
-    public function setToProperCaseCallback($toProperCase)
-    {
-        $this->toProperCase = $toProperCase;
+    public function setToProperCaseCallback($callable): Callbacks {
+        $this->toProperCase = $callable;
         return $this;
     }
 
     /**
-     * @param callable $goType
-     * @return Callbacks
+     * @param callable $callable
+     * @return \DCarbone\JSONToGO\Callbacks
      */
-    public function setGoTypeCallback($goType)
-    {
-        $this->goType = $goType;
+    public function setGoTypeCallback($callable): Callbacks {
+        $this->goType = $callable;
         return $this;
     }
 
     /**
-     * @param callable $mostSpecificPossibleGoType
-     * @return Callbacks
+     * @param callable $callable
+     * @return \DCarbone\JSONToGO\Callbacks
      */
-    public function setMostSpecificPossibleGoTypeCallback($mostSpecificPossibleGoType)
-    {
-        $this->mostSpecificPossibleGoType = $mostSpecificPossibleGoType;
+    public function setMostSpecificPossibleGoTypeCallback($callable): Callbacks {
+        $this->mostSpecificPossibleGoType = $callable;
         return $this;
     }
 
     /**
-     * @param callable $buildStructFieldTag
-     * @return Callbacks
+     * @param callable $callable
+     * @return \DCarbone\JSONToGO\Callbacks
      */
-    public function setBuildStructFieldTagCallback($buildStructFieldTag)
-    {
-        $this->buildStructFieldTag = $buildStructFieldTag;
+    public function setBuildStructFieldTagCallback($callable): Callbacks {
+        $this->buildStructFieldTag = $callable;
         return $this;
     }
 
     /**
-     * @param callable $isFieldExported
-     * @return Callbacks
+     * @param callable $callable
+     * @return \DCarbone\JSONToGO\Callbacks
      */
-    public function setIsFieldExportedCallback($isFieldExported)
-    {
-        $this->isFieldExported = $isFieldExported;
+    public function setIsFieldExportedCallback($callable): Callbacks {
+        $this->isFieldExported = $callable;
         return $this;
     }
 
     /**
-     * @param callable $isFieldIgnored
-     * @return Callbacks
+     * @param callable $callable
+     * @return \DCarbone\JSONToGO\Callbacks
      */
-    public function setIsFieldIgnoredCallback($isFieldIgnored)
-    {
-        $this->isFieldIgnored = $isFieldIgnored;
+    public function setIsFieldIgnoredCallback($callable): Callbacks {
+        $this->isFieldIgnored = $callable;
         return $this;
     }
 }

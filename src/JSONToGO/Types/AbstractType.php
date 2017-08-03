@@ -11,11 +11,9 @@ use DCarbone\JSONToGO\Configuration;
 
 /**
  * Class AbstractType
- *
  * @package DCarbone\JSONToGO\Types
  */
-abstract class AbstractType
-{
+abstract class AbstractType implements Type {
     /** @var \DCarbone\JSONToGO\Configuration */
     protected $configuration;
 
@@ -27,28 +25,27 @@ abstract class AbstractType
     /** @var bool */
     protected $alwaysDefined = true;
 
-    /** @var \DCarbone\JSONToGO\Types\StructType|\DCarbone\JSONToGO\Types\SliceType|\DCarbone\JSONToGO\Types\MapType */
+    /** @var \DCarbone\JSONToGO\Types\TypeParent|null */
     protected $parent = null;
 
     /**
      * AbstractType constructor.
-     *
      * @param \DCarbone\JSONToGO\Configuration $configuration
      * @param string $name
      * @param mixed $example
+     * @param \DCarbone\JSONToGO\Types\TypeParent|null $parent
      */
-    public function __construct(Configuration $configuration, $name, $example)
-    {
+    public function __construct(Configuration $configuration, string $name, $example, TypeParent $parent = null) {
         $this->configuration = $configuration;
         $this->name = $name;
         $this->example = $example;
+        $this->parent = $parent;
     }
 
     /**
      * @return array
      */
-    public function __debugInfo()
-    {
+    public function __debugInfo() {
         return [
             'name' => $this->name,
             'alwaysDefined' => $this->alwaysDefined,
@@ -59,29 +56,17 @@ abstract class AbstractType
     /**
      * @return string
      */
-    abstract public function type();
-
-    /**
-     * @param int $indentLevel
-     * @return string
-     */
-    abstract public function toGO($indentLevel = 0);
-
-    /**
-     * @return string
-     */
-    public function name()
-    {
+    public function name(): string {
         return $this->name;
     }
 
     /**
      * @return string
      */
-    public function goName()
-    {
-        if (null === $this->parent())
+    public function goName(): string {
+        if (null === $this->parent()) {
             return $this->name();
+        }
 
         return $this->configuration->callbacks()->formatPropertyName($this->configuration, $this->name());
     }
@@ -89,13 +74,14 @@ abstract class AbstractType
     /**
      * @return string
      */
-    public function goTypeName()
-    {
-        if (null === ($parent = $this->parent()))
+    public function goTypeName(): string {
+        if (null === ($parent = $this->parent())) {
             return $this->goName();
+        }
 
-        if ($parent instanceof SliceType || $parent instanceof MapType)
+        if ($parent instanceof SliceType || $parent instanceof MapType) {
             return $parent->goTypeName();
+        }
 
         return sprintf('%s%s', $parent->goTypeName(), $this->goName());
     }
@@ -103,44 +89,38 @@ abstract class AbstractType
     /**
      * @return mixed
      */
-    public function example()
-    {
+    public function example() {
         return $this->example;
     }
 
     /**
      * @return bool
      */
-    public function isAlwaysDefined()
-    {
+    public function isAlwaysDefined(): bool {
         return $this->alwaysDefined && false === $this->configuration->forceOmitEmpty();
     }
 
     /**
-     * @return AbstractType
+     * @return \DCarbone\JSONToGO\Types\Type
      */
-    public function notAlwaysDefined()
-    {
+    public function notAlwaysDefined(): Type {
         $this->alwaysDefined = false;
         return $this;
     }
 
     /**
-     * @return \DCarbone\JSONToGO\Types\StructType|\DCarbone\JSONToGO\Types\SliceType|\DCarbone\JSONToGO\Types\MapType
+     * @return \DCarbone\JSONToGO\Types\TypeParent|null
      */
-    public function parent()
-    {
+    public function parent(): ?TypeParent {
         return $this->parent;
     }
 
     /**
-     * @param \DCarbone\JSONToGO\Types\StructType|\DCarbone\JSONToGO\Types\SliceType|\DCarbone\JSONToGO\Types\MapType $parent
-     * @return AbstractType
+     * @param \DCarbone\JSONToGO\Types\TypeParent $parent
+     * @return \DCarbone\JSONToGO\Types\Type
      */
-    public function setParent($parent)
-    {
-        if ($parent instanceof SliceType || $parent instanceof StructType || $parent instanceof MapType)
-        {
+    public function setParent(TypeParent $parent): Type {
+        if ($parent instanceof SliceType || $parent instanceof StructType || $parent instanceof MapType) {
             $this->parent = $parent;
             return $this;
         }
@@ -155,8 +135,7 @@ abstract class AbstractType
     /**
      * @return string
      */
-    public function __toString()
-    {
+    public function __toString(): string {
         return $this->toGO(0);
     }
 
@@ -164,12 +143,12 @@ abstract class AbstractType
      * @param int $level
      * @return string
      */
-    protected static function indents($level)
-    {
+    protected static function indents(int $level): string {
         $level = (int)$level;
 
-        if (0 >= $level)
+        if (0 >= $level) {
             return '';
+        }
 
         return str_repeat("\t", $level);
     }

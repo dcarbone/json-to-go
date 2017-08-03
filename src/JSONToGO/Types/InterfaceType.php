@@ -9,16 +9,13 @@
 
 /**
  * Class InterfaceType
- *
  * @package DCarbone\JSONToGO\Types
  */
-class InterfaceType extends AbstractType
-{
+class InterfaceType extends AbstractType {
     /**
      * @return string
      */
-    public function type()
-    {
+    public function type(): string {
         return GOTYPE_INTERFACE;
     }
 
@@ -26,10 +23,10 @@ class InterfaceType extends AbstractType
      * @param int $indentLevel
      * @return string
      */
-    public function toGO($indentLevel = 0)
-    {
-        if (null === $this->parent())
+    public function toGO(int $indentLevel = 0): string {
+        if (null === $this->parent()) {
             return sprintf('type %s %s', $this->goTypeName(), $this->type());
+        }
 
         return $this->type();
     }

@@ -9,54 +9,47 @@
 
 /**
  * Class MapType
- *
  * @package DCarbone\JSONToGO\Types
  */
-class MapType extends AbstractType
-{
+class MapType extends AbstractType implements TypeParent {
     /** @var AbstractType */
     protected $mapType;
 
     /**
      * @return array
      */
-    public function __debugInfo()
-    {
+    public function __debugInfo() {
         return parent::__debugInfo() + ['mapType' => $this->mapType()];
     }
 
     /**
      * @return string
      */
-    public function type()
-    {
+    public function type(): string {
         return GOTYPE_MAP;
     }
 
     /**
-     * @param \DCarbone\JSONToGO\Types\AbstractType $mapType
-     * @return MapType
+     * @param \DCarbone\JSONToGO\Types\Type $mapType
+     * @return \DCarbone\JSONToGO\Types\MapType
      */
-    public function setMapType(AbstractType $mapType)
-    {
+    public function setMapType(Type $mapType): MapType {
         $mapType->setParent($this);
         $this->mapType = $mapType;
         return $this;
     }
 
     /**
-     * @return \DCarbone\JSONToGO\Types\AbstractType
+     * @return \DCarbone\JSONToGO\Types\Type
      */
-    public function mapType()
-    {
+    public function mapType(): Type {
         return $this->mapType;
     }
 
     /**
      * @return string
      */
-    public function goTypeMapName()
-    {
+    public function goTypeMapName(): string {
         return sprintf('%sMap', $this->goTypeName());
     }
 
@@ -64,44 +57,31 @@ class MapType extends AbstractType
      * @param int $indentLevel
      * @return string
      */
-    public function toGO($indentLevel = 0)
-    {
+    public function toGO(int $indentLevel = 0): string {
         $output = [];
 
         $mapType = $this->mapType();
 
         $parent = $this->parent();
 
-        if ($this->configuration->breakOutInlineStructs())
-        {
-            if ($mapType instanceof StructType)
-            {
+        if ($this->configuration->breakOutInlineStructs()) {
+            if ($mapType instanceof StructType) {
                 $output[] = sprintf('type %s map[string]*%s', $this->goTypeMapName(), $this->goTypeName());
                 $output[] = $mapType->toGO($indentLevel);
-            }
-            else if (null === $parent)
-            {
+            } else if (null === $parent) {
                 $output[] = sprintf('type %s map[string]%s', $this->goTypeName(), $mapType->toGO());
-            }
-            else if ($parent instanceof SliceType || $parent instanceof MapType)
-            {
+            } else if ($parent instanceof SliceType || $parent instanceof MapType) {
                 $output[] = sprintf('map[string]%s', $mapType->toGO($indentLevel));
-            }
-            else
-            {
+            } else {
                 $output[] = sprintf('type %s map[string]%s', $this->goTypeMapName(), $mapType->toGO());
             }
-        }
-        else if (null === $parent)
-        {
+        } else if (null === $parent) {
             $output[] = sprintf(
                 'type %s map[string]%s',
                 $this->goTypeName(),
                 $mapType->toGO($indentLevel)
             );
-        }
-        else
-        {
+        } else {
             $output[] = sprintf('map[string]%s', $mapType->toGO($indentLevel));
         }
 

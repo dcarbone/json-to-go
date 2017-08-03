@@ -9,44 +9,38 @@
 
 /**
  * Class StructType
- *
  * @package DCarbone\JSONToGO\Types
  */
-class StructType extends AbstractType
-{
-    /** @var \DCarbone\JSONToGO\Types\StructType[] */
+class StructType extends AbstractType implements TypeParent {
+    /** @var \DCarbone\JSONToGO\Types\Type[] */
     protected $fields = [];
 
     /**
      * @return array
      */
-    public function __debugInfo()
-    {
+    public function __debugInfo() {
         return parent::__debugInfo() + ['fields' => $this->fields];
     }
 
     /**
      * @return string
      */
-    public function type()
-    {
+    public function type(): string {
         return GOTYPE_STRUCT;
     }
 
     /**
-     * @return \DCarbone\JSONToGO\Types\StructType[]
+     * @return \DCarbone\JSONToGO\Types\Type[]
      */
-    public function fields()
-    {
+    public function fields(): array {
         return $this->fields;
     }
 
     /**
-     * @param \DCarbone\JSONToGO\Types\AbstractType $child
-     * @return StructType
+     * @param \DCarbone\JSONToGO\Types\Type $child
+     * @return \DCarbone\JSONToGO\Types\StructType
      */
-    public function addChild(AbstractType $child)
-    {
+    public function addChild(Type $child): StructType {
         $child->setParent($this);
         $this->fields[$child->name()] = $child;
         return $this;
@@ -56,38 +50,36 @@ class StructType extends AbstractType
      * @param int $indentLevel
      * @return string
      */
-    public function toGO($indentLevel = 0)
-    {
+    public function toGO(int $indentLevel = 0): string {
         $output = [];
 
         $breakOutInlineStructs = $this->configuration->breakOutInlineStructs();
         $parent = $this->parent();
 
-        if ($breakOutInlineStructs || null === $parent)
-        {
+        if ($breakOutInlineStructs || null === $parent) {
             $go = sprintf(
                 "type %s %s {\n",
                 $this->goTypeName(),
                 $this->type()
             );
-        }
-        else
-        {
+        } else {
             $go = sprintf(
                 "%s {\n",
                 $this->type()
             );
         }
 
-        foreach($this->fields() as $field)
-        {
-            if ($this->configuration->callbacks()->isFieldIgnored($this->configuration, $this, $field))
-            {
-                $this->configuration->logger()->info(sprintf('[json-to-go] Ignoring field "%s" in struct "%s"', $field->name(), $this->name()));
+        foreach ($this->fields() as $field) {
+            if ($this->configuration->callbacks()->isFieldIgnored($this->configuration, $this, $field)) {
+                $this->configuration->logger()->info(sprintf('[json-to-go] Ignoring field "%s" in struct "%s"',
+                    $field->name(),
+                    $this->name()));
                 continue;
             }
 
-            $this->configuration->logger()->debug(sprintf('[json-to-go] Writing field "%s" in struct "%s"', $field->name(), $this->name()));
+            $this->configuration->logger()->debug(sprintf('[json-to-go] Writing field "%s" in struct "%s"',
+                $field->name(),
+                $this->name()));
 
             $exported = $this->configuration->callbacks()->isFieldExported($this->configuration, $this, $field);
 
@@ -101,34 +93,29 @@ class StructType extends AbstractType
             $fieldTag = $this->configuration->callbacks()->buildStructFieldTag($this->configuration, $this, $field);
 
             $fieldTag = trim($fieldTag, " \t\n\r\0\x0B`");
-            if ('' !== $fieldTag)
+            if ('' !== $fieldTag) {
                 $fieldTag = sprintf(' `%s`', $fieldTag);
+            }
 
-            if ($breakOutInlineStructs && !($field instanceof SimpleType || $field instanceof InterfaceType))
-            {
+            if ($breakOutInlineStructs && !($field instanceof SimpleType || $field instanceof InterfaceType)) {
                 // Add the child struct to the output list...
                 $output[] = $field->toGO();
 
-                if ($field instanceof StructType)
-                {
+                if ($field instanceof StructType) {
                     $go = sprintf(
                         '%s *%s%s',
                         $go,
                         $field->goTypeName(),
                         $fieldTag
                     );
-                }
-                else if ($field instanceof SliceType)
-                {
+                } else if ($field instanceof SliceType) {
                     $go = sprintf(
                         '%s %s%s',
                         $go,
                         $field->goTypeSliceName(),
                         $fieldTag
                     );
-                }
-                else if ($field instanceof MapType)
-                {
+                } else if ($field instanceof MapType) {
                     $go = sprintf(
                         '%s %s%s',
                         $go,
@@ -136,9 +123,7 @@ class StructType extends AbstractType
                         $fieldTag
                     );
                 }
-            }
-            else
-            {
+            } else {
                 $go = sprintf(
                     '%s %s%s',
                     $go,
