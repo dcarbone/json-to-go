@@ -123,7 +123,14 @@ abstract class Typer {
             }
         } else if ($type1 instanceof StructType && $type2 instanceof StructType) {
             $parent1 = $type1->parent();
-            if (null === $parent1 || !($parent1 instanceof SliceType)) {
+            if (null === $parent1) {
+                return $type1;
+            }
+
+            // TODO: This is a terrible assumption...
+
+            $parent1Parent = $parent1->parent();
+            if ($parent1Parent && !($parent1Parent instanceof SliceType)) {
                 return $type1;
             }
 
@@ -138,6 +145,10 @@ abstract class Typer {
                 return $type1;
             }
         } else if (get_class($type1) === get_class($type2)) {
+            return $type1;
+        } else if ($type1 instanceof InterfaceType && !($type2 instanceof InterfaceType)) {
+            return $type2;
+        } else if (!($type1 instanceof InterfaceType) && $type2 instanceof InterfaceType) {
             return $type1;
         }
 

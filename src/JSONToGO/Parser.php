@@ -172,9 +172,7 @@ abstract class Parser {
                 }
             }
 
-            if ($sliceGoType instanceof StructType &&
-                $configuration->emptyStructToInterface() &&
-                0 === count($allFields)) {
+            if ($sliceGoType instanceof StructType && $configuration->emptyStructToInterface() && 0 === count($allFields)) {
                 $type = new InterfaceType($configuration, $typeName, $typeExample);
             } else {
                 $childTypeExample = new \stdClass();
