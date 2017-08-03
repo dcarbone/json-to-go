@@ -35,10 +35,7 @@ abstract class AbstractType implements Type {
      * @param mixed $example
      * @param \DCarbone\JSONToGO\Types\TypeParent|null $parent
      */
-    public function __construct(Configuration $configuration,
-                                string $name,
-                                $example,
-                                TypeParent $parent = null) {
+    public function __construct(Configuration $configuration, string $name, $example, TypeParent $parent = null) {
         $this->configuration = $configuration;
         $this->name = $name;
         $this->example = $example;
