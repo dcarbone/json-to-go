@@ -9,14 +9,17 @@
 
 use DCarbone\JSONToGO\Configuration;
 use DCarbone\JSONToGO\Parser;
+use DCarbone\JSONToGO\Types\TypeInterface;
 
 /**
  * Class JSONToGO
  *
  * @package DCarbone
  */
-class JSONToGO
-{
+class JSONToGO {
+
+    const TYPE_NAME_REGEX = '^[a-zA-Z][a-zA-Z0-9]*$';
+
     /** @var \DCarbone\JSONToGO\Configuration */
     protected $configuration;
 
@@ -25,8 +28,7 @@ class JSONToGO
      *
      * @param \DCarbone\JSONToGO\Configuration $configuration
      */
-    public function __construct(Configuration $configuration)
-    {
+    public function __construct(Configuration $configuration) {
         $this->configuration = $configuration;
     }
 
@@ -34,12 +36,12 @@ class JSONToGO
      * @param string $typeName
      * @param string $input
      * @param \DCarbone\JSONToGO\Configuration|null $configuration
-     * @return \DCarbone\JSONToGO\Types\AbstractType
+     * @return \DCarbone\JSONToGO\Types\TypeInterface
      */
-    public function __invoke($typeName, $input, Configuration $configuration = null)
-    {
-        if (null === $configuration)
+    public function __invoke(string $typeName, string $input, Configuration $configuration = null): TypeInterface {
+        if (null === $configuration) {
             $configuration = new Configuration();
+        }
 
         $new = new static($configuration);
 
@@ -50,12 +52,12 @@ class JSONToGO
      * @param string $typeName
      * @param string $input
      * @param \DCarbone\JSONToGO\Configuration $configuration
-     * @return \DCarbone\JSONToGO\Types\AbstractType
+     * @return \DCarbone\JSONToGO\Types\TypeInterface
      */
-    public static function parse($typeName, $input, Configuration $configuration = null)
-    {
-        if (null === $configuration)
+    public static function parse(string $typeName, string $input, Configuration $configuration = null): TypeInterface {
+        if (null === $configuration) {
             $configuration = new Configuration();
+        }
 
         $new = new static($configuration);
 
@@ -66,16 +68,17 @@ class JSONToGO
      * @param string $typeName
      * @param mixed $decodedInput
      * @param \DCarbone\JSONToGO\Configuration $configuration
-     * @return \DCarbone\JSONToGO\Types\AbstractType
+     * @return \DCarbone\JSONToGO\Types\TypeInterface
      */
-    public static function parseDecoded($typeName, $decodedInput, Configuration $configuration = null)
-    {
-        if (null === $configuration)
+    public static function parseDecoded(string $typeName,
+                                        $decodedInput,
+                                        Configuration $configuration = null): TypeInterface {
+        if (null === $configuration) {
             $configuration = new Configuration();
+        }
 
         $encoded = json_encode($decodedInput);
-        if (JSON_ERROR_NONE === json_last_error())
-        {
+        if (JSON_ERROR_NONE === json_last_error()) {
             $new = new static($configuration);
             return $new->generate($typeName, $encoded);
         }
@@ -86,30 +89,33 @@ class JSONToGO
     /**
      * @param string $typeName
      * @param string $input
-     * @return \DCarbone\JSONToGO\Types\AbstractType
+     * @return \DCarbone\JSONToGO\Types\TypeInterface
      */
-    public function generate($typeName, $input)
-    {
-        if (!is_string($typeName))
-            throw new \InvalidArgumentException(get_class($this).'::generate - $typeName must be string, '.gettype($typeName).' seen.');
-
-        if (!is_string($input))
-            throw new \InvalidArgumentException(get_class($this).'::generate - $input must be string, '.gettype($input).' seen.');
-
+    public function generate(string $typeName, string $input): TypeInterface {
         $typeName = trim($typeName);
-        if ('' === $typeName || !preg_match('/^[a-zA-Z][a-zA-Z0-9]*$/', $typeName))
-            throw new \InvalidArgumentException(get_class($this).'::generate - Root type name must follow "^[a-zA-Z][a-zA-Z0-9]*$", '.$typeName.' does not.');
+        if ('' === $typeName || !preg_match('/' . self::TYPE_NAME_REGEX . '/', $typeName)) {
+            throw new \InvalidArgumentException(get_class($this) .
+                '::generate - Root type name must follow "' . self::TYPE_NAME_REGEX . '", ' .
+                $typeName .
+                ' does not.');
+        }
 
         $input = trim($input);
-        if ('' === $input)
-            throw new \RuntimeException(get_class($this).'::generate - Input is empty, please re-construct with valid input');
+        if ('' === $input) {
+            throw new \RuntimeException(get_class($this) .
+                '::generate - Input is empty, please re-construct with valid input');
+        }
 
         $decoded = json_decode($input);
-        if (JSON_ERROR_NONE !== json_last_error())
-            throw new \RuntimeException(get_class($this).'::generate - Unable to json_decode input: '.json_last_error_msg());
+        if (JSON_ERROR_NONE !== json_last_error()) {
+            throw new \RuntimeException(get_class($this) .
+                '::generate - Unable to json_decode input: ' .
+                json_last_error_msg());
+        }
 
-        if ($this->configuration->sanitizeInput())
+        if ($this->configuration->sanitizeInput()) {
             $decoded = $this->configuration->callbacks()->sanitizeInput($this->configuration, $decoded);
+        }
 
         return Parser::parseType($this->configuration, $typeName, $decoded);
     }

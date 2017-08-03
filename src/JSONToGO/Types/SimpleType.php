@@ -14,8 +14,7 @@ use DCarbone\JSONToGO\Configuration;
  *
  * @package DCarbone\JSONToGO\Types
  */
-class SimpleType extends AbstractType
-{
+class SimpleType extends AbstractType {
     /** @var string */
     protected $type;
 
@@ -27,8 +26,7 @@ class SimpleType extends AbstractType
      * @param int|float|bool|string $example
      * @param string $type
      */
-    public function __construct(Configuration $configuration, $name, $example, $type)
-    {
+    public function __construct(Configuration $configuration, string $name, $example, string $type) {
         parent::__construct($configuration, $name, $example);
         $this->type = $type;
     }
@@ -36,8 +34,7 @@ class SimpleType extends AbstractType
     /**
      * @return string
      */
-    public function type()
-    {
+    public function type(): string {
         return $this->type;
     }
 
@@ -45,10 +42,8 @@ class SimpleType extends AbstractType
      * @param int $indentLevel
      * @return string
      */
-    public function toGO($indentLevel = 0)
-    {
-        if (null === $this->parent())
-        {
+    public function toGO(int $indentLevel = 0): string {
+        if (null === $this->parent()) {
             return sprintf(
                 'type %s %s%s',
                 $this->goTypeName(),
@@ -57,8 +52,9 @@ class SimpleType extends AbstractType
             );
         }
 
-        if ($this->configuration->forceScalarToPointer())
+        if ($this->configuration->forceScalarToPointer()) {
             return sprintf('*%s', $this->type());
+        }
 
         return $this->type();
     }

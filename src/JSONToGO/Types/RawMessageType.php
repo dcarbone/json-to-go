@@ -14,8 +14,7 @@ use DCarbone\JSONToGO\Configuration;
  *
  * @package DCarbone\JSONToGO\Types
  */
-class RawMessageType extends SimpleType
-{
+class RawMessageType extends SimpleType {
     /**
      * RawMessageType constructor.
      *
@@ -23,8 +22,7 @@ class RawMessageType extends SimpleType
      * @param string $name
      * @param mixed $example
      */
-    public function __construct(Configuration $configuration, $name, $example)
-    {
+    public function __construct(Configuration $configuration, string $name, $example) {
         parent::__construct($configuration, $name, $example, 'json.RawMessage');
     }
 
@@ -32,10 +30,8 @@ class RawMessageType extends SimpleType
      * @param int $indentLevel
      * @return string
      */
-    public function toGO($indentLevel = 0)
-    {
-        if (null === $this->parent())
-        {
+    public function toGO(int $indentLevel = 0): string {
+        if (null === $this->parent()) {
             return sprintf(
                 'type %s %s',
                 $this->goTypeName(),

@@ -12,32 +12,29 @@
  *
  * @package DCarbone\JSONToGO
  */
-abstract class Namer
-{
+abstract class Namer {
     /**
      * @param \DCarbone\JSONToGO\Configuration $configuration
      * @param string $propertyName
      * @return string
      */
-    public static function formatPropertyName(Configuration $configuration, $propertyName)
-    {
-        if (!$propertyName)
+    public static function formatPropertyName(Configuration $configuration, string $propertyName): string {
+        if (!$propertyName) {
             return '';
+        }
 
         // If entire name is a number...
-        if (preg_match('/^\d+$/S', $propertyName))
-        {
+        if (preg_match('/^\d+$/S', $propertyName)) {
             $propertyName = sprintf('Num%s', $propertyName);
-        }
-        // If first character of name is a number...
-        else if (preg_match('/^\d/S', $propertyName))
-        {
+        } // If first character of name is a number...
+        else if (preg_match('/^\d/S', $propertyName)) {
             $propertyName = $configuration->numberToWord(substr($propertyName, 0, 1)) . substr($propertyName, 1);
         }
 
         // If this starts with anything other than an alpha character prefix with X
-        if (preg_match('/^[^a-zA-Z]/S', $propertyName))
+        if (preg_match('/^[^a-zA-Z]/S', $propertyName)) {
             $propertyName = sprintf('X%s', $propertyName);
+        }
 
         // Do stuff with non-alphanumeric characters
         $propertyName = $configuration->callbacks()->handleSpecialCharacters($configuration, $propertyName);
@@ -54,18 +51,20 @@ abstract class Namer
      * @param string $string
      * @return string
      */
-    public static function handleSpecialCharacters(Configuration $configuration, $string)
-    {
-        $ci = $configuration->commonInitialisms();
+    public static function handleSpecialCharacters(Configuration $configuration, string $string): string {
+        $ci = $configuration::COMMON_INITIALISISMS;
 
-        return preg_replace_callback('/(^|[^a-zA-Z])([a-z]+)/S', function($item) use ($ci) {
-            list($full, $symbol, $string) = $item;
-            $upper = strtoupper($string);
+        return preg_replace_callback('/(^|[^a-zA-Z])([a-z]+)/S',
+            function ($item) use ($ci) {
+                [$full, $symbol, $string] = $item;
+                $upper = strtoupper($string);
 
-            if (in_array($upper, $ci, true))
-                return $upper;
-            return ucfirst(strtolower($string));
-        }, $string);
+                if (in_array($upper, $ci, true)) {
+                    return $upper;
+                }
+                return ucfirst(strtolower($string));
+            },
+            $string);
     }
 
     /**
@@ -73,16 +72,18 @@ abstract class Namer
      * @param string $string
      * @return string
      */
-    public static function toProperCase(Configuration $configuration, $string)
-    {
-        $ci = $configuration->commonInitialisms();
+    public static function toProperCase(Configuration $configuration, string $string): string {
+        $ci = $configuration::COMMON_INITIALISISMS;
 
-        return preg_replace_callback('/([A-Z])([a-z]+)/S', function($item) use ($ci) {
-            list($full, $firstLetter, $rest) = $item;
-            $upper = strtoupper($full);
-            if (in_array($upper, $ci, true))
-                return $upper;
-            return $full;
-        }, $string);
+        return preg_replace_callback('/([A-Z])([a-z]+)/S',
+            function ($item) use ($ci) {
+                [$full] = $item;
+                $upper = strtoupper($full);
+                if (in_array($upper, $ci, true)) {
+                    return $upper;
+                }
+                return $full;
+            },
+            $string);
     }
 }

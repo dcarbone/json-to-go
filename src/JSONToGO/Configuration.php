@@ -17,12 +17,10 @@ use Psr\Log\NullLogger;
  *
  * @package DCarbone\JSONToGO
  */
-class Configuration implements LoggerAwareInterface
-{
+class Configuration implements LoggerAwareInterface {
     use LoggerAwareTrait;
 
-    /** @var array */
-    protected static $defaultConfigurationValues = [
+    const DEFAULT_VALUES = [
         'forceOmitEmpty' => false,
         'forceIntToFloat' => false,
         'useSimpleInt' => false,
@@ -45,29 +43,7 @@ class Configuration implements LoggerAwareInterface
         'callbacks' => null,
     ];
 
-    /** @var bool */
-    protected $forceOmitEmpty;
-    /** @var bool */
-    protected $forceIntToFloat;
-    /** @var bool */
-    protected $useSimpleInt;
-    /** @var bool */
-    protected $forceScalarToPointer;
-    /** @var bool */
-    protected $breakOutInlineStructs;
-    /** @var bool */
-    protected $emptyStructToInterface;
-    /** @var bool */
-    protected $sanitizeInput;
-
-    /** @var string[] */
-    protected $initialNumberMap;
-
-    /** @var Callbacks */
-    protected $callbacks;
-
-    /** @var string[] */
-    protected static $commonInitialisms = [
+    const COMMON_INITIALISISMS = [
         'API',
         'ASCII',
         'CPU',
@@ -105,210 +81,191 @@ class Configuration implements LoggerAwareInterface
         'XSS',
     ];
 
+    /** @var bool */
+    protected $forceOmitEmpty;
+    /** @var bool */
+    protected $forceIntToFloat;
+    /** @var bool */
+    protected $useSimpleInt;
+    /** @var bool */
+    protected $forceScalarToPointer;
+    /** @var bool */
+    protected $breakOutInlineStructs;
+    /** @var bool */
+    protected $emptyStructToInterface;
+    /** @var bool */
+    protected $sanitizeInput;
+
+    /** @var string[] */
+    protected $initialNumberMap;
+
+    /** @var Callbacks */
+    protected $callbacks;
+
     /**
      * Configuration constructor.
      *
      * @param array $config
      * @param \Psr\Log\LoggerInterface $logger
      */
-    public function __construct(array $config = [], LoggerInterface $logger = null)
-    {
-        if (null === $logger)
+    public function __construct(array $config = [], LoggerInterface $logger = null) {
+        if (null === $logger) {
             $logger = new NullLogger();
+        }
 
         $this->setLogger($logger);
 
-        foreach(static::$defaultConfigurationValues as $configKey => $defaultValue)
-        {
-            if (isset($config[$configKey]))
+        foreach (self::DEFAULT_VALUES as $configKey => $defaultValue) {
+            if (isset($config[$configKey])) {
                 $value = $config[$configKey];
-            else
+            } else {
                 $value = $defaultValue;
+            }
 
-            if ('callbacks' === $configKey && null == $value)
+            if ('callbacks' === $configKey && null == $value) {
                 $value = new Callbacks();
+            }
 
             $this->{sprintf('set%s', ucfirst($configKey))}($value);
         }
     }
 
     /**
-     * @deprecated
-     * @return Configuration
-     */
-    public static function newDefaultConfiguration()
-    {
-        return new static();
-    }
-
-    /**
-     * @deprecated
-     * @param array $conf
-     * @return Configuration
-     */
-    public static function newConfiguration(array $conf = [])
-    {
-        return new static($conf);
-    }
-
-    /**
      * @return \Psr\Log\LoggerInterface
      */
-    public function logger()
-    {
+    public function logger(): LoggerInterface {
         return $this->logger;
     }
 
     /**
      * @return bool
      */
-    public function forceOmitEmpty()
-    {
+    public function forceOmitEmpty(): bool {
         return $this->forceOmitEmpty;
     }
 
     /**
      * @param bool $forceOmitEmpty
-     * @return Configuration
+     * @return \DCarbone\JSONToGO\Configuration
      */
-    public function setForceOmitEmpty($forceOmitEmpty)
-    {
-        $this->forceOmitEmpty = (bool)$forceOmitEmpty;
+    public function setForceOmitEmpty(bool $forceOmitEmpty): Configuration {
+        $this->forceOmitEmpty = $forceOmitEmpty;
         return $this;
     }
 
     /**
      * @return bool
      */
-    public function forceIntToFloat()
-    {
+    public function forceIntToFloat(): bool {
         return $this->forceIntToFloat;
     }
 
     /**
      * @param bool $intToFloat
-     * @return Configuration
+     * @return \DCarbone\JSONToGO\Configuration
      */
-    public function setForceIntToFloat($intToFloat)
-    {
-        $this->forceIntToFloat = (bool)$intToFloat;
+    public function setForceIntToFloat(bool $intToFloat): Configuration {
+        $this->forceIntToFloat = $intToFloat;
         return $this;
     }
 
     /**
      * @return bool
      */
-    public function useSimpleInt()
-    {
+    public function useSimpleInt(): bool {
         return $this->useSimpleInt;
     }
 
     /**
      * @param bool $simpleInt
-     * @return bool
+     * @return \DCarbone\JSONToGO\Configuration
      */
-    public function setUseSimpleInt($simpleInt)
-    {
-        $this->useSimpleInt = (bool)$simpleInt;
-        return $this->useSimpleInt;
+    public function setUseSimpleInt(bool $simpleInt): Configuration {
+        $this->useSimpleInt = $simpleInt;
+        return $this;
     }
 
     /**
      * @return bool
      */
-    public function forceScalarToPointer()
-    {
+    public function forceScalarToPointer(): bool {
         return $this->forceScalarToPointer;
     }
 
     /**
      * @param bool $forceScalarToPointer
-     * @return Configuration
+     * @return \DCarbone\JSONToGO\Configuration
      */
-    public function setForceScalarToPointer($forceScalarToPointer)
-    {
-        $this->forceScalarToPointer = (bool)$forceScalarToPointer;
+    public function setForceScalarToPointer(bool $forceScalarToPointer): Configuration {
+        $this->forceScalarToPointer = $forceScalarToPointer;
         return $this;
     }
 
     /**
      * @return bool
      */
-    public function emptyStructToInterface()
-    {
+    public function emptyStructToInterface(): bool {
         return $this->emptyStructToInterface;
     }
 
     /**
      * @param bool $emptyStructToInterface
-     * @return Configuration
+     * @return \DCarbone\JSONToGO\Configuration
      */
-    public function setEmptyStructToInterface($emptyStructToInterface)
-    {
-        $this->emptyStructToInterface = (bool)$emptyStructToInterface;
+    public function setEmptyStructToInterface(bool $emptyStructToInterface): Configuration {
+        $this->emptyStructToInterface = $emptyStructToInterface;
         return $this;
     }
 
     /**
      * @return bool
      */
-    public function breakOutInlineStructs()
-    {
+    public function breakOutInlineStructs(): bool {
         return $this->breakOutInlineStructs;
     }
 
     /**
      * @param bool $breakOutInlineStructs
-     * @return Configuration
+     * @return \DCarbone\JSONToGO\Configuration
      */
-    public function setBreakOutInlineStructs($breakOutInlineStructs)
-    {
-        $this->breakOutInlineStructs = (bool)$breakOutInlineStructs;
+    public function setBreakOutInlineStructs(bool $breakOutInlineStructs): Configuration {
+        $this->breakOutInlineStructs = $breakOutInlineStructs;
         return $this;
     }
 
     /**
      * @return bool
      */
-    public function sanitizeInput()
-    {
+    public function sanitizeInput(): bool {
         return $this->sanitizeInput;
     }
 
     /**
      * @param bool $sanitizeInput
-     * @return Configuration
+     * @return \DCarbone\JSONToGO\Configuration
      */
-    public function setSanitizeInput($sanitizeInput)
-    {
-        $this->sanitizeInput = (bool)$sanitizeInput;
+    public function setSanitizeInput(bool $sanitizeInput): Configuration {
+        $this->sanitizeInput = $sanitizeInput;
         return $this;
     }
 
     /**
      * @return \DCarbone\JSONToGO\Callbacks
      */
-    public function callbacks()
-    {
+    public function callbacks(): Callbacks {
         return $this->callbacks;
     }
 
     /**
-     * @param Callbacks|array $callbacks
-     * @return Configuration
+     * @param \DCarbone\JSONToGO\Callbacks|array $callbacks
+     * @return \DCarbone\JSONToGO\Configuration
      */
-    public function setCallbacks($callbacks)
-    {
-        if ($callbacks instanceof Callbacks)
-        {
+    public function setCallbacks($callbacks): Configuration {
+        if ($callbacks instanceof Callbacks) {
             $this->callbacks = $callbacks;
-        }
-        else if (is_array($callbacks))
-        {
+        } else if (is_array($callbacks)) {
             $this->callbacks = new Callbacks($callbacks);
-        }
-        else
-        {
+        } else {
             throw new \InvalidArgumentException(
                 'Configuration: Type mismatch: "callbacks" must either be instance of ' .
                 '\\DCarbone\\JSONToGo\\Callbacks or an array of callback type => callable'
@@ -319,36 +276,25 @@ class Configuration implements LoggerAwareInterface
     }
 
     /**
-     * @return string[]
-     */
-    public function commonInitialisms()
-    {
-        return static::$commonInitialisms;
-    }
-
-    /**
-     * @param string|int $number
+     * @param int $number
      * @return string
      */
-    public function numberToWord($number)
-    {
-       return $this->initialNumberMap[(int)$number];
+    public function numberToWord(int $number): string {
+        return $this->initialNumberMap[(int)$number];
     }
 
     /**
      * @return string[]
      */
-    public function initialNumberMap()
-    {
+    public function initialNumberMap(): array {
         return $this->initialNumberMap;
     }
 
     /**
      * @param array $initialNumberMap
-     * @return Configuration
+     * @return \DCarbone\JSONToGO\Configuration
      */
-    public function setInitialNumberMap(array $initialNumberMap)
-    {
+    public function setInitialNumberMap(array $initialNumberMap): Configuration {
         $this->initialNumberMap = $initialNumberMap;
         return $this;
     }
